@@ -13,7 +13,6 @@ export const generateToken = async (user: { _id: string, email: string }) => {
 export const verifyToken = async (token: string) => {
     const tokenDetail = jwt.decode(token);
     console.log('tokenDetail', tokenDetail)
-    console.log('process.env.ENABLEJWT', process.env.ENABLEJWT, typeof process.env.ENABLEJWT)
     if (process.env.ENABLEJWT === "true") {
         return await jwt.verify(token, process.env.JWT_SECRET);
     }

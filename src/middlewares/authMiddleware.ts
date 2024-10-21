@@ -11,10 +11,8 @@ export interface AuthRequest extends Request {
 export const auth = async (req: AuthRequest, res: Response, next: NextFunction) => {
   let token: string | undefined;
   token = req.cookies[`${JWT_TOKEN_NAME}`];
-  console.log('auth middleware', token, req.cookies)
   if (token) {
     try {
-      // token = req.headers.authorization.split(' ')[1];
       
       const decoded = await verifyToken(token!);
        console.log('decoded', decoded)

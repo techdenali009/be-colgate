@@ -39,7 +39,6 @@ const userSchema = new Schema<IUser>({
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next(); // Skip if password is not modified
   const saltRounds = +`${process.env.PASSWORD_SALT}`; 
-  console.log('saltRounds', saltRounds)
   this.password = await bcrypt.hash(this.password, saltRounds); 
   next();
 });

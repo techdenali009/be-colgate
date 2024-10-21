@@ -20,7 +20,6 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const newUser: IUser | any = await createUserService({ ...req.body, createdBy: null, updatedBy: null });
-   console.log('createUser newUser', newUser)
     if (newUser?.message === 'Duplicate Email' || !newUser?.email) {
       failResponse(res, newUser?.message, StatusCode.Bad_Request)
       return;

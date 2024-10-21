@@ -3,7 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const app: any = express();
 const cookieParser = require('cookie-parser');
-import routes from '../src/routes/index'
+import routes from './routes/index'
 import { errorResponse } from './utils/response'
 // Middleware
 app.use(express.json());

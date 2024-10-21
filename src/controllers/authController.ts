@@ -13,7 +13,6 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const credentials = req.body as { email: string, password: string };
         const userInfo: IUser | any = await loginService(credentials?.email);
-        console.log('userInfo', userInfo)
         if (!userInfo) {
             failResponse(res, "User Not Available", StatusCode.Not_Found);
             return;
