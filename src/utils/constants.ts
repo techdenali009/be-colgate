@@ -1,1 +1,1 @@
-export const  JwtTokenName ='Authorization';
+export const   JWT_TOKEN_NAME ='Authorization';

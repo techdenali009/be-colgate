@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt';
 import { failResponse } from '../utils/response';
-import { JwtTokenName } from '../utils/constants';
+import { JWT_TOKEN_NAME } from '../utils/constants';
 const cookieParser = require('cookie-parser');
 export interface AuthRequest extends Request {
   user?: string | object;
@@ -10,7 +10,7 @@ export interface AuthRequest extends Request {
 // Middleware to protect routes
 export const auth = async (req: AuthRequest, res: Response, next: NextFunction) => {
   let token: string | undefined;
-  token = req.cookies[`${JwtTokenName}`];
+  token = req.cookies[`${JWT_TOKEN_NAME}`];
   console.log('auth middleware', token, req.cookies)
   if (token) {
     try {

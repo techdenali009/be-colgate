@@ -5,7 +5,7 @@ import { comparePasswords } from "../utils/passwordValidation";
 import { failResponse, successResponse } from "../utils/response";
 import { StatusCode } from "../utils/StatusCodes";
 import { generateToken } from "../utils/jwt";
-import { JwtTokenName } from "../utils/constants";
+import { JWT_TOKEN_NAME } from "../utils/constants";
 
 
 // POST login user
@@ -26,7 +26,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
             }
         }
         const token = await generateToken(userInfo);
-        res.cookie(`${JwtTokenName}`, token, {
+        res.cookie(`${JWT_TOKEN_NAME}`, token, {
             httpOnly: true,
             secure: true, // Only on HTTPS in production
             sameSite: 'strict',  // CSRF protection
