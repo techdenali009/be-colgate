@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt';
 import { failResponse } from '../utils/response';
-import { JWT_TOKEN_NAME } from '../utils/constants';
+import { JWT_TOKEN_NAME, Messages } from '../utils/constants';
 const cookieParser = require('cookie-parser');
 export interface AuthRequest extends Request {
   user?: string | object;
@@ -22,15 +22,15 @@ export const auth = async (req: AuthRequest, res: Response, next: NextFunction) 
     } catch (err: any) {
       console.log('err', err)
       if (err) {
-        if (err.name === 'TokenExpiredError') {
-          return failResponse(res, 'Token expired. Please log in again.', 401);
+        if (err.name === Messages.Token_Expired_Error) {
+          return failResponse(res, Messages.Token_Expired, 401);
         }
-        return failResponse(res, 'Invalid token.', 401);
+        return failResponse(res, Messages.Invalid_Token, 401);
       }
     }
   }
   if(!token){
-    return failResponse(res, 'Not authorized, no token', 401);
+    return failResponse(res, Messages.Not_Authorized_No_Token, 401);
   }
 
 

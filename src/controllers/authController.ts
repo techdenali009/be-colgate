@@ -5,7 +5,7 @@ import { comparePasswords } from "../utils/passwordValidation";
 import { failResponse, successResponse } from "../utils/response";
 import { StatusCode } from "../utils/StatusCodes";
 import { generateToken } from "../utils/jwt";
-import { JWT_TOKEN_NAME } from "../utils/constants";
+import { JWT_TOKEN_NAME, Messages } from "../utils/constants";
 
 
 // POST login user
@@ -14,13 +14,13 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         const credentials = req.body as { email: string, password: string };
         const userInfo: IUser | any = await loginService(credentials?.email);
         if (!userInfo) {
-            failResponse(res, "User Not Available", StatusCode.Not_Found);
+            failResponse(res, Messages.User_Not_Available, StatusCode.Not_Found);
             return;
         }
         if (userInfo?.password) {
             const password = await comparePasswords(credentials.password, userInfo.password);
             if (!password) {
-                failResponse(res, "Unauthorized", StatusCode.Unauthorized);
+                failResponse(res, Messages.Unauthorized_User, StatusCode.Unauthorized);
                 return;
             }
         }
@@ -30,7 +30,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
             secure: true, // Only on HTTPS in production
             sameSite: 'strict',  // CSRF protection
         });
-        successResponse(res, { userInfo, token }, "User Authenticated successfully!", StatusCode.OK);
+        successResponse(res, { userInfo, token }, Messages.UserAuthenticated, StatusCode.OK);
     } catch (err: any) {
         failResponse(res, err?.message || err, StatusCode.Bad_Request)
     }

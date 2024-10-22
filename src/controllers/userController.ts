@@ -3,6 +3,7 @@ import { getAllUsersService, createUserService, deleteUserService, updateUserSer
 import { IUser } from '../models/interfaces';
 import { failResponse, successResponse } from '../utils/response';
 import { StatusCode } from '../utils/StatusCodes';
+import { Messages } from '../utils/constants';
 
 
 
@@ -12,7 +13,7 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
     const users = await getAllUsersService();
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching users' });
+    res.status(500).json({ message: Messages.Fetch_Error });
   }
 };
 
@@ -20,11 +21,11 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const newUser: IUser | any = await createUserService({ ...req.body, createdBy: null, updatedBy: null });
-    if (newUser?.message === 'Duplicate Email' || !newUser?.email) {
+    if (newUser?.message === Messages.Duplicate_Email || !newUser?.email) {
       failResponse(res, newUser?.message, StatusCode.Bad_Request)
       return;
     }
-    successResponse(res, newUser, "User Created successfully!", StatusCode.Created);
+    successResponse(res, newUser, Messages.User_Created, StatusCode.Created);
   } catch (error: any) {
     failResponse(res, error?.message || error, StatusCode.Bad_Request)
   }
@@ -40,7 +41,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
       failResponse(res, newUser?.message, StatusCode.Bad_Request)
       return;
     }
-    successResponse(res, { email: newUser?.email }, "User deleted successfully!", StatusCode.OK);
+    successResponse(res, { email: newUser?.email }, Messages.User_Deleted, StatusCode.OK);
   } catch (error: any) {
     failResponse(res, error?.message || error, StatusCode.Bad_Request)
   }
@@ -55,7 +56,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
       failResponse(res, updatedUser?.message, StatusCode.Bad_Request);
       return
     }
-    successResponse(res, req.body, "User Updated successfully!", StatusCode.OK);
+    successResponse(res, req.body, Messages.User_Updated, StatusCode.OK);
   } catch (err: any) {
     console.log('err', err)
     failResponse(res, err?.message || err, StatusCode.Bad_Request)
