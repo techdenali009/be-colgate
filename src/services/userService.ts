@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongoose';
 import { IUser } from '../models/interfaces';
 import User from '../models/User';
+import { Messages } from '../utils/constants';
 
 export const getAllUsersService = async () => {
     try {
@@ -16,7 +17,7 @@ export const createUserService = async (body: IUser): Promise<IUser | any> => {
         const user = await User.findOne({ email: body.email }, { email: 1 });
         if (user) {
             return {
-                message: 'Duplicate Email',
+                message: Messages.Duplicate_Email,
                 email: body.email
             };
         }
