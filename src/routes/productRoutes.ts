@@ -8,9 +8,7 @@ import {
   getProductsByCategory
 } from '../controllers/productsController';
 import { productValidationRules } from '../middlewares/ProductValidations';
-
 const router = Router();
-
 // Routes
 router.post('/', productValidationRules, createProducts);
 router.get('/', getAllProducts);

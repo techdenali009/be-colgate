@@ -12,19 +12,11 @@ export interface ShippingInfo {
   shippingClass?: string;
 }
 
-export interface Review {
-  userId: mongoose.Types.ObjectId;
-  rating: number;
-  comment?: string;
-  date?: Date;
-}
-
 export interface ProductDocument extends Document {
   name: string;
   description: string;
   category: mongoose.Types.ObjectId;
   subCategories?: mongoose.Types.ObjectId[];
-  brand: string;
   price: number;
   discount?: number;
   finalPrice: number;
@@ -32,9 +24,7 @@ export interface ProductDocument extends Document {
   inventoryLocations: InventoryLocation[];
   shipping: ShippingInfo;
   images?: { url: string; altText?: string; order?: number }[];
-  reviews?: Review[];
   averageRating?: number;
-  relatedProducts?: mongoose.Types.ObjectId[];
   status?: Status;
   version: number;
   createdAt: Date;
@@ -49,7 +39,6 @@ const productSchema = new Schema<ProductDocument>({
   description: { type: String, required: true },
   category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
   subCategories: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
-  brand: { type: String, required: true },
   price: { type: Number, required: true },
   discount: { type: Number, default: 0 },
   finalPrice: { type: Number, required: true },
@@ -73,16 +62,7 @@ const productSchema = new Schema<ProductDocument>({
       order: { type: Number },
     },
   ],
-  reviews: [
-    {
-      userId: { type: Schema.Types.ObjectId, ref: 'User' },
-      rating: { type: Number, required: true, min: 1, max: 5 },
-      comment: { type: String, trim: true },
-      date: { type: Date, default: Date.now },
-    },
-  ],
   averageRating: { type: Number, default: 0, min: 0, max: 5 },
-  relatedProducts: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   status: { type: String, enum: Status, default: 'active' },
   version: { type: Number, default: 1 },
   createdAt: { type: Date, default: Date.now },

@@ -11,7 +11,6 @@ export const createProducts = async (req: Request, res: Response): Promise<void>
     res.status(400).json({ errors: errors.array() });
     return;
   }
-
   try {
     const products = await productService.createProducts(req.body);
     res.status(201).json(products);
