@@ -74,27 +74,54 @@ export const updateWarehouse = async (req: Request, res: Response): Promise<void
     res.status(400).json({ errors: errors.array() });
     return;
   }
+
   const updateData = req.body;
+  const productId = req.query.product_id as string;
+
   try {
-    // If query params are provided, pass them along to the service for filtering
-    const warehouse = await warehouseService.updateWarehouse(req.params.id, updateData);
+    const warehouse = await warehouseService.updateWarehouse(req.params.id, updateData, productId);
+
     if (!warehouse) {
       res.status(404).json({ message: 'Warehouse not found' });
       return;
     }
+
     res.status(200).json(warehouse);
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }
 };
 
-export const deleteWarehouse = async (req: Request, res: Response): Promise<void> => {
+export const deleteWarehouseProduct = async (req: Request, res: Response): Promise<void> => {
+  const { warehouseId, productId } = req.params;
+
   try {
-    const warehouse = await warehouseService.deleteWarehouse(req.params.id);
-    if (!warehouse) {
+    // Check if the warehouse exists and the product is removed successfully
+    const updatedWarehouse = await warehouseService.deleteProductFromWarehouse(warehouseId, productId);
+
+    if (!updatedWarehouse) {
+      res.status(404).json({ message: 'Warehouse or product not found' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Product deleted from warehouse successfully', updatedWarehouse });
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export const deleteWarehouse = async (req: Request, res: Response): Promise<void> => {
+  const warehouseId = req.params.id;
+
+  try {
+    // Delete the warehouse by its ID
+    const deletedWarehouse = await warehouseService.deleteWarehouseById(warehouseId);
+
+    if (!deletedWarehouse) {
       res.status(404).json({ message: 'Warehouse not found' });
       return;
     }
+
     res.status(204).json({ message: 'Warehouse deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });

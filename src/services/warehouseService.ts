@@ -18,21 +18,22 @@ export const getWarehouseById = async (id: string) => {
   return await Warehouse.findById(id);
 };
 
-export const updateWarehouse = async (id: string, data: any) => {
+
+export const updateWarehouse = async (id: string, data: any, productId?: string) => {
   const warehouse = await Warehouse.findById(id);
   if (!warehouse) return null;
-
   if (data.products) {
     for (const updatedProduct of data.products) {
-      // Ensure the product has a valid product_id
-      if (!updatedProduct.product_id) {
+      const actualProductId = updatedProduct.product_id || productId;
+
+      if (!actualProductId) {
         throw new Error('Product ID is required for each product');
       }
-
+      // First try to update the product if it exists
       const updateResult = await Warehouse.updateOne(
         {
           _id: id,
-          "products.product_id": updatedProduct.product_id,
+          "products.product_id": actualProductId,
         },
         {
           $set: {
@@ -41,17 +42,14 @@ export const updateWarehouse = async (id: string, data: any) => {
           },
         }
       );
-
+      // If the product does not exist, add it as a new product entry
       if (updateResult.modifiedCount === 0) {
         await Warehouse.updateOne(
-          {
-            _id: id,
-            "products.product_id": { $ne: updatedProduct.product_id },
-          },
+          { _id: id },
           {
             $push: {
               products: {
-                product_id: updatedProduct.product_id,
+                product_id: actualProductId,
                 quantity: updatedProduct.quantity,
                 last_updated: updatedProduct.last_updated || new Date(),
               },
@@ -66,6 +64,15 @@ export const updateWarehouse = async (id: string, data: any) => {
 };
 
 
-export const deleteWarehouse = async (id: string) => {
-  return await Warehouse.findByIdAndDelete(id);
+export const deleteWarehouseById = async (warehouseId: string) => {
+  return await Warehouse.findByIdAndDelete(warehouseId);
+};
+
+export const deleteProductFromWarehouse = async (warehouseId: string, productId: string) => {
+  // Pull the product with the given product_id from the products array
+  return await Warehouse.findByIdAndUpdate(
+    warehouseId,
+    { $pull: { products: { _id: productId } } },  // Pull the product by its product_id
+    { new: true }  // Return the updated warehouse after modification
+  );
 };

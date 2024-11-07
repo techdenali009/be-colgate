@@ -38,12 +38,12 @@ router.put(
     body('products.*.product_id').optional().isMongoId(),
     body('products.*.quantity').optional().isInt({ min: 0 }),
     body('products.*.last_updated').optional().isDate(),
-    
   ],
   warehouseController.updateWarehouse
 );
 
-
 router.delete('/:id', warehouseController.deleteWarehouse);
+
+router.delete('/:warehouseId/products/:productId', warehouseController.deleteWarehouseProduct);
 
 export default router;
