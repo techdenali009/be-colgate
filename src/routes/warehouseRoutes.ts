@@ -38,6 +38,7 @@ router.put(
     body('products.*.product_id').optional().isMongoId(),
     body('products.*.quantity').optional().isInt({ min: 0 }),
     body('products.*.last_updated').optional().isDate(),
+    
   ],
   warehouseController.updateWarehouse
 );

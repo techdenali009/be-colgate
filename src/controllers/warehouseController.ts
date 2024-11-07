@@ -19,8 +19,43 @@ export const createWarehouse = async (req: Request, res: Response): Promise<void
 };
 
 export const getAllWarehouses = async (req: Request, res: Response): Promise<void> => {
+  const { name, status, location, isActive, product_id } = req.query;
+
+  // Build filter object based on query params
+  const filter: any = {};
+
+  if (name) {
+    filter.name = { $regex: name, $options: 'i' }; // Case-insensitive search
+  }
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (isActive) {
+    filter.isActive = isActive === 'true'; // Convert 'true' or 'false' string to boolean
+  }
+
+  if (location) {
+    // Filter by location fields (street, city, state, zipcode, country)
+    const locationFilter: any = {};
+    const locationFields = ['street', 'city', 'state', 'zipcode', 'country'];
+    locationFields.forEach((field) => {
+      if (req.query[field]) {
+        locationFilter[field] = { $regex: req.query[field], $options: 'i' }; // Case-insensitive
+      }
+    });
+    if (Object.keys(locationFilter).length > 0) {
+      filter.location = locationFilter;
+    }
+  }
+
+  if (product_id) {
+    filter['products.product_id'] = product_id; // Filter by product_id within products array
+  }
+
   try {
-    const warehouses = await warehouseService.getAllWarehouses();
+    const warehouses = await warehouseService.getWarehousesByFilter(filter);
     res.status(200).json(warehouses);
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
@@ -46,10 +81,11 @@ export const updateWarehouse = async (req: Request, res: Response): Promise<void
     res.status(400).json({ errors: errors.array() });
     return;
   }
-
   const updateData = req.body;
+  const queryParams = req.query; // Extract query parameters for filtering
   try {
-    const warehouse = await warehouseService.updateWarehouse(req.params.id, updateData);
+    // If query params are provided, pass them along to the service for filtering
+    const warehouse = await warehouseService.updateWarehouse(req.params.id, updateData, queryParams);
     if (!warehouse) {
       res.status(404).json({ message: 'Warehouse not found' });
       return;
