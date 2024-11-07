@@ -20,22 +20,17 @@ export const createWarehouse = async (req: Request, res: Response): Promise<void
 
 export const getAllWarehouses = async (req: Request, res: Response): Promise<void> => {
   const { name, status, location, isActive, product_id } = req.query;
-
   // Build filter object based on query params
   const filter: any = {};
-
   if (name) {
     filter.name = { $regex: name, $options: 'i' }; // Case-insensitive search
   }
-
   if (status) {
     filter.status = status;
   }
-
   if (isActive) {
     filter.isActive = isActive === 'true'; // Convert 'true' or 'false' string to boolean
   }
-
   if (location) {
     // Filter by location fields (street, city, state, zipcode, country)
     const locationFilter: any = {};
@@ -49,11 +44,9 @@ export const getAllWarehouses = async (req: Request, res: Response): Promise<voi
       filter.location = locationFilter;
     }
   }
-
   if (product_id) {
     filter['products.product_id'] = product_id; // Filter by product_id within products array
   }
-
   try {
     const warehouses = await warehouseService.getWarehousesByFilter(filter);
     res.status(200).json(warehouses);
@@ -82,10 +75,9 @@ export const updateWarehouse = async (req: Request, res: Response): Promise<void
     return;
   }
   const updateData = req.body;
-  const queryParams = req.query; // Extract query parameters for filtering
   try {
     // If query params are provided, pass them along to the service for filtering
-    const warehouse = await warehouseService.updateWarehouse(req.params.id, updateData, queryParams);
+    const warehouse = await warehouseService.updateWarehouse(req.params.id, updateData);
     if (!warehouse) {
       res.status(404).json({ message: 'Warehouse not found' });
       return;
@@ -95,7 +87,6 @@ export const updateWarehouse = async (req: Request, res: Response): Promise<void
     res.status(500).json({ message: (error as Error).message });
   }
 };
-
 
 export const deleteWarehouse = async (req: Request, res: Response): Promise<void> => {
   try {

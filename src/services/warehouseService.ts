@@ -18,25 +18,17 @@ export const getWarehouseById = async (id: string) => {
   return await Warehouse.findById(id);
 };
 
-export const updateWarehouse = async (id: string, data: any, queryParams: any) => {
+export const updateWarehouse = async (id: string, data: any) => {
   const warehouse = await Warehouse.findById(id);
   if (!warehouse) return null;
 
-  // Update the warehouse name if provided
-  if (data.name) {
-    warehouse.name = data.name;
-  }
-
-  // Update location if provided
-  if (data.location) {
-    warehouse.location = { ...warehouse.location, ...data.location };
-  }
-
-  // Check if product data is provided in the request
   if (data.products) {
-    // Loop through the provided products
     for (const updatedProduct of data.products) {
-      // First, try to update the existing product if it exists
+      // Ensure the product has a valid product_id
+      if (!updatedProduct.product_id) {
+        throw new Error('Product ID is required for each product');
+      }
+
       const updateResult = await Warehouse.updateOne(
         {
           _id: id,
@@ -50,12 +42,11 @@ export const updateWarehouse = async (id: string, data: any, queryParams: any) =
         }
       );
 
-      // If the product doesn't exist, add it to the products array
       if (updateResult.modifiedCount === 0) {
         await Warehouse.updateOne(
           {
             _id: id,
-            "products.product_id": { $ne: updatedProduct.product_id }, // Ensure the product does not exist
+            "products.product_id": { $ne: updatedProduct.product_id },
           },
           {
             $push: {
@@ -70,11 +61,7 @@ export const updateWarehouse = async (id: string, data: any, queryParams: any) =
       }
     }
   }
-
-  // Update the updatedAt timestamp
   warehouse.updatedAt = new Date();
-
-  // Save the updated warehouse
   return await warehouse.save();
 };
 
