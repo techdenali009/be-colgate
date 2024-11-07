@@ -26,14 +26,22 @@ router.put(
   '/:id',
   [
     body('name').optional().isString().trim().notEmpty(),
+    // Location validation (make sure each field is validated)
+    body('location').optional().isObject(),
     body('location.street').optional().isString().trim().notEmpty(),
     body('location.city').optional().isString().trim().notEmpty(),
     body('location.state').optional().isString().trim().notEmpty(),
     body('location.zipcode').optional().isString().trim().notEmpty(),
     body('location.country').optional().isString().trim().notEmpty(),
+    // Products validation
+    body('products').optional().isArray(),
+    body('products.*.product_id').optional().isMongoId(),
+    body('products.*.quantity').optional().isInt({ min: 0 }),
+    body('products.*.last_updated').optional().isDate(),
   ],
   warehouseController.updateWarehouse
 );
+
 
 router.delete('/:id', warehouseController.deleteWarehouse);
 

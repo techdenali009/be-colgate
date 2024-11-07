@@ -47,8 +47,9 @@ export const updateWarehouse = async (req: Request, res: Response): Promise<void
     return;
   }
 
+  const updateData = req.body;
   try {
-    const warehouse = await warehouseService.updateWarehouse(req.params.id, req.body);
+    const warehouse = await warehouseService.updateWarehouse(req.params.id, updateData);
     if (!warehouse) {
       res.status(404).json({ message: 'Warehouse not found' });
       return;
@@ -58,6 +59,7 @@ export const updateWarehouse = async (req: Request, res: Response): Promise<void
     res.status(500).json({ message: (error as Error).message });
   }
 };
+
 
 export const deleteWarehouse = async (req: Request, res: Response): Promise<void> => {
   try {
