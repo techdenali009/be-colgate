@@ -8,15 +8,33 @@ const router = express.Router();
 router.post(
   '/',
   [
-    body('name').isString().trim().notEmpty(),
-    body('location.street').isString().trim().notEmpty(),
-    body('location.city').isString().trim().notEmpty(),
-    body('location.state').isString().trim().notEmpty(),
-    body('location.zipcode').isString().trim().notEmpty(),
-    body('location.country').isString().trim().notEmpty(),
+    // Validate whether data is an array or a single object
+    body().custom(value => {
+      if (Array.isArray(value)) {
+        // Validate each item in the array (multiple warehouses)
+        value.forEach(item => {
+          body('name').isString().trim().notEmpty().run(item);
+          body('location.street').isString().trim().notEmpty().run(item);
+          body('location.city').isString().trim().notEmpty().run(item);
+          body('location.state').isString().trim().notEmpty().run(item);
+          body('location.zipcode').isString().trim().notEmpty().run(item);
+          body('location.country').isString().trim().notEmpty().run(item);
+        });
+      } else {
+        // Validate a single warehouse
+        body('name').isString().trim().notEmpty().run(value);
+        body('location.street').isString().trim().notEmpty().run(value);
+        body('location.city').isString().trim().notEmpty().run(value);
+        body('location.state').isString().trim().notEmpty().run(value);
+        body('location.zipcode').isString().trim().notEmpty().run(value);
+        body('location.country').isString().trim().notEmpty().run(value);
+      }
+      return true; // Validation passed
+    })
   ],
   warehouseController.createWarehouse
 );
+
 
 router.get('/', warehouseController.getAllWarehouses);
 

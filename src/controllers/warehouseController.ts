@@ -4,19 +4,26 @@ import { validationResult } from 'express-validator';
 import * as warehouseService from '../services/warehouseService';
 
 export const createWarehouse = async (req: Request, res: Response): Promise<void> => {
+  console.log("Route accessed");
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(400).json({ errors: errors.array() });
     return;
   }
-
   try {
-    const warehouse = await warehouseService.createWarehouse(req.body);
-    res.status(201).json(warehouse);
+    const data = req.body;
+    console.log('Received data:', data); // Log the received data to check if it's an array or object
+
+    // Call the service function to create warehouse(s)
+    const result = await warehouseService.createWarehouse(data);
+    res.status(201).json(result);
   } catch (error) {
+    console.error('Error creating warehouse:', error);
     res.status(500).json({ message: (error as Error).message });
   }
 };
+
 
 export const getAllWarehouses = async (req: Request, res: Response): Promise<void> => {
   const { name, status, location, isActive, product_id } = req.query;
@@ -24,6 +31,7 @@ export const getAllWarehouses = async (req: Request, res: Response): Promise<voi
   const filter: any = {};
   if (name) {
     filter.name = { $regex: name, $options: 'i' }; // Case-insensitive search
+    console.log('filter', filter, filter.name)
   }
   if (status) {
     filter.status = status;
@@ -44,6 +52,8 @@ export const getAllWarehouses = async (req: Request, res: Response): Promise<voi
       filter.location = locationFilter;
     }
   }
+
+  
   if (product_id) {
     filter['products.product_id'] = product_id; // Filter by product_id within products array
   }
@@ -112,7 +122,6 @@ export const deleteWarehouseProduct = async (req: Request, res: Response): Promi
 
 export const deleteWarehouse = async (req: Request, res: Response): Promise<void> => {
   const warehouseId = req.params.id;
-
   try {
     // Delete the warehouse by its ID
     const deletedWarehouse = await warehouseService.deleteWarehouseById(warehouseId);

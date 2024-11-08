@@ -2,8 +2,22 @@
 import Warehouse from '../models/Warehouse';
 
 export const createWarehouse = async (data: any) => {
-  const warehouse = new Warehouse(data);
-  return await warehouse.save();
+  console.log('Data received in service:', data);
+
+  if (Array.isArray(data)) {
+    console.log('Processing multiple warehouses');
+    const warehouses = await Promise.all(
+      data.map(async (item) => {
+        const warehouse = new Warehouse(item);
+        return await warehouse.save();
+      })
+    );
+    return warehouses; // Return array of created warehouses
+  } else {
+    console.log('Processing single warehouse');
+    const warehouse = new Warehouse(data);
+    return await warehouse.save();
+  }
 };
 
 export const getAllWarehouses = async () => {
@@ -62,6 +76,7 @@ export const updateWarehouse = async (id: string, data: any, productId?: string)
   warehouse.updatedAt = new Date();
   return await warehouse.save();
 };
+
 
 
 export const deleteWarehouseById = async (warehouseId: string) => {
