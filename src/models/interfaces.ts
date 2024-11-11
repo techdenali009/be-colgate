@@ -17,6 +17,13 @@ export interface IUser extends IBasicFields {
     firstName: string;
     lastName: string
     password: string;
+    userType: UserType
+}
+
+export enum UserType {
+    Admin = "admin",
+    User = "User",
+    Operator = "Operator"
 }
 
 // enums 
