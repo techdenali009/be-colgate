@@ -1,13 +1,7 @@
 import { Router } from 'express';
-import {
-  createProducts,
-  getAllProducts,
-  getProductById,
-  updateProduct,
-  deleteProduct,
-  getProductsByCategory
-} from '../controllers/productsController';
+import { createProducts, getAllProducts, getProductById, updateProduct, deleteProduct, getProductsByCategory } from '../controllers/productsController';
 import { productValidationRules } from '../middlewares/ProductValidations';
+
 const router = Router();
 // Routes
 router.post('/', productValidationRules, createProducts);

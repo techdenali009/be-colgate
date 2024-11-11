@@ -1,5 +1,4 @@
-// services/productService.ts
-import Product, { ProductDocument }  from '../models/product';
+import Product, { ProductDocument } from '../models/product';
 
 // Create new products (handling multiple products)
 export const createProducts = async (productData: any[]): Promise<ProductDocument[]> => {
@@ -7,7 +6,7 @@ export const createProducts = async (productData: any[]): Promise<ProductDocumen
     const products = await Promise.all(
       productData.map(async (data) => {
         const product = new Product(data);
-        console.log("Products data",product);
+        console.log("Products data", product);
         await product.save();
         return product;
       })
@@ -18,15 +17,16 @@ export const createProducts = async (productData: any[]): Promise<ProductDocumen
   }
 };
 
-// Get all products
-export const getAllProducts = async (): Promise<ProductDocument[]> => {
+export const getAllProducts = async (
+  filter: any = {},
+  sortOptions: any = {}
+): Promise<ProductDocument[]> => {
   try {
-    console.log("Fetching all products...");
-    const products = await Product.find();
+    const products = await Product.find(filter).sort(sortOptions);
     console.log("Fetched products:", products);
     return products;
   } catch (error) {
-    console.error("Error fetching all products:", (error as Error).message);
+    console.error("Error fetching products:", (error as Error).message);
     throw new Error((error as Error).message);
   }
 };
@@ -85,3 +85,4 @@ export const getProductsByCategory = async (categoryId: string): Promise<Product
     throw new Error((error as Error).message);
   }
 };
+export default Product;

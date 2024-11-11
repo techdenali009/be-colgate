@@ -15,4 +15,4 @@ router.use('/products', productRoutes);
 router.use('/warehouse',WarehouseRoutes)
 router.use('/', authRoutes);
 
-export default router;
+export default router; 

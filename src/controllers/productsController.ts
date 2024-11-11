@@ -1,8 +1,7 @@
-// controllers/productController.ts
-
 import { Request, Response } from 'express';
-import { body, validationResult } from 'express-validator';
-import * as productService from '../services/productService';
+import { validationResult } from 'express-validator';
+import Product, * as productService from '../services/productService';
+import  { buildFilter, getSortOption, getPagination } from '../utils/productUtils';
 
 // Create new products (handling multiple products)
 export const createProducts = async (req: Request, res: Response): Promise<void> => {
@@ -19,13 +18,37 @@ export const createProducts = async (req: Request, res: Response): Promise<void>
   }
 };
 
-// Get all products
+// Controller function to get all products
 export const getAllProducts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const products = await productService.getAllProducts();
-    res.status(200).json(products);
+    const { sortBy, page, limit } = req.query;
+    // Build filter, sort, and pagination
+    const filter = buildFilter(req.query);
+    console.log("Product Utils",filter);
+    const sortOption = getSortOption(sortBy as string);
+    const { pageNum, limitNum, skip } = getPagination(Number(page), Number(limit));
+
+    // Query database with filtering, sorting, and pagination
+    const products = await Product.find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limitNum);
+      console.log("products d",products)
+    // Get total count for pagination
+    const totalCount = await Product.countDocuments(filter);
+    const hasMore = skip + products.length < totalCount;
+    console.log("Has More",hasMore)
+
+    res.status(200).json({
+      products,
+      totalCount,
+      hasMore,
+      currentPage: pageNum,
+      totalPages: Math.ceil(totalCount / limitNum),
+    });
   } catch (error) {
-    res.status(500).json({ message: (error as Error).message });
+    console.error("Error fetching products:", (error as Error).message);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
