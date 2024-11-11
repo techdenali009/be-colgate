@@ -1,5 +1,5 @@
 import { Schema, model, Document, ObjectId, Mongoose } from 'mongoose';
-import { IUser, Status } from './interfaces';
+import { IUser, Status, UserType } from './interfaces';
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
@@ -9,6 +9,7 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true,
     unique: true,
+  
   },
   firstName: {
     type: String,
@@ -21,6 +22,12 @@ const userSchema = new Schema<IUser>({
   password: {
     type: String,
     required: true,
+  },
+  userType: {
+    type: String,
+    enum: UserType,
+    require: true,
+    default: UserType.User
   },
   status: { type: String, enum: Status, default: 'active' },
   version: { type: Number, default: 1 },
