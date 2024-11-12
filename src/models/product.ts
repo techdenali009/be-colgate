@@ -22,12 +22,12 @@ export interface ProductDocument extends Document {
   subCategories?: mongoose.Types.ObjectId[];
   price: number;
   discount?: number;
-  finalPrice: number;
   stock: number;
   inventoryLocations: InventoryLocation[];
   shipping: ShippingInfo;
   images?: { url: string; altText?: string; order?: number }[];
   averageRating?: number;
+  isBestSeller ?: boolean;
   status?: Status;
   version: number;
   createdAt: Date;
@@ -45,7 +45,6 @@ const productSchema = new Schema<ProductDocument>({
   subCategories: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
   price: { type: Number, required: true },
   discount: { type: Number, default: 0 },
-  finalPrice: { type: Number, required: true },
   stock: { type: Number, required: true, min: 0 },
   inventoryLocations: [
     {
@@ -71,6 +70,7 @@ const productSchema = new Schema<ProductDocument>({
     },
   ],
   averageRating: { type: Number, default: 0, min: 0, max: 5 },
+  isBestSeller: {type: Boolean, default: false },
   status: { type: String, enum: ['active', 'inactive', 'archived'], default: 'active' },
   version: { type: Number, default: 1 },
   createdAt: { type: Date, default: Date.now },

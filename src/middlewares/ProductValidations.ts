@@ -8,14 +8,15 @@ export const productValidationRules = [
   body('*.price').isNumeric().notEmpty().withMessage('Price is required and should be numeric'),
   body('*.category').isMongoId().withMessage('Category must be a valid ObjectId'),
   body('*.inventoryLocations')
-    .isArray()
-    .withMessage('Inventory locations must be an array')
-    .custom((locations) => {
-      if (!locations.length) {
-        throw new Error('Inventory locations cannot be empty');
-      }
-      return true;
-    }),
+  .isArray()
+  .withMessage('Inventory locations must be an array')
+  .optional()
+  .custom((locations) => {
+    if (locations && !locations.length) {
+      throw new Error('Inventory locations cannot be empty');
+    }
+    return true;
+  }),
   body('*.shipping')
     .isObject()
     .withMessage('Shipping information is required')
