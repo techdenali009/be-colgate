@@ -80,7 +80,7 @@ export const deleteCategory = async (id: string): Promise<CategoryDocument | nul
 };
 
 // Add multiple Subcategories to Category
-export const addSubcategoryToCategory = async (categoryId: string, subcategories: { name: string, description: string }[]) => {
+export const addSubcategoryToCategory = async (categoryId: string, subcategories: {_id:any, name: string, description: string }[]) => {
   const category = await Category.findById(categoryId);
   if (!category) throw new Error('Category not found');
 
@@ -106,15 +106,40 @@ export const updateSubcategory = async (categoryId: string, oldSubcategoryName: 
   return category;
 };
 
-// Delete Subcategory from Category
-export const deleteSubcategory = async (categoryId: string, subcategoryName: string) => {
+// Delete Subcategory from Category by ID
+export const deleteSubcategory = async (categoryId: string, subcategoryId: string) => {
+  console.log(`Deleting subcategory with ID: ${subcategoryId} from category: ${categoryId}`);
+  
   const category = await Category.findById(categoryId);
-  if (!category) throw new Error('Category not found');
+  if (!category) {
+    console.error('Category not found');
+    throw new Error('Category not found');
+  }
 
-  const subcategoryIndex = category.subcategories.findIndex(sub => sub.name === subcategoryName);
-  if (subcategoryIndex === -1) throw new Error('Subcategory not found');
+  console.log('Category found:', category);
 
+  // Ensure subcategories exist
+  if (!category.subcategories || category.subcategories.length === 0) {
+    console.error('No subcategories found in this category');
+    throw new Error('No subcategories found');
+  }
+
+  // Find the index of the subcategory by its ID, ensuring that the subcategory is not null
+  const subcategoryIndex = category.subcategories.findIndex(
+    sub => sub && sub._id.toString() === subcategoryId
+  );
+
+  console.log('Subcategory index:', subcategoryIndex);
+
+  if (subcategoryIndex === -1) {
+    console.error('Subcategory not found');
+    throw new Error('Subcategory not found');
+  }
+
+  // Remove the subcategory from the list
   category.subcategories.splice(subcategoryIndex, 1);
   await category.save();
+
+  console.log('Subcategory deleted successfully');
   return category;
 };

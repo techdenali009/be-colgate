@@ -135,17 +135,19 @@ export const updateSubcategoryController = async (req: Request, res: Response): 
   }
 };
 
-// Delete Subcategory from Category
+// Controller to delete a subcategory
 export const deleteSubcategoryController = async (req: Request, res: Response): Promise<void> => {
-  const { categoryId, subcategoryName } = req.params;
+  const { categoryId, subcategoryId } = req.params;
+  console.log(`Received request to delete subcategory: ${subcategoryId} from category: ${categoryId}`);
 
   try {
-    const updatedCategory = await categoryService.deleteSubcategory(categoryId, subcategoryName);
+    const updatedCategory = await categoryService.deleteSubcategory(categoryId, subcategoryId);
     res.status(200).json({
       message: 'Subcategory deleted successfully',
-      subcategories: updatedCategory?.subcategories,
+      subcategories: updatedCategory.subcategories,
     });
   } catch (error) {
+    console.error('Error deleting subcategory:', error);
     res.status(500).json({ message: (error as Error).message });
   }
 };

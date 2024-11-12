@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 import { Status } from './interfaces';
 
 interface Subcategory {
+  _id : any;
   name: string;
   description: string;
 }
