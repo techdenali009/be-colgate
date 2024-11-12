@@ -6,11 +6,9 @@ import {
   deleteCategory,
   getCategoryById,
   getProductsByCategory,
-  addSubcategory,
-  updateSubcategoryController,
-  deleteSubcategoryController,
 } from '../controllers/categoryController';
 import { validateCategory } from '../middlewares/CategoryValidation';
+import subcategoryRouter from './subCategoryRoutes';
 
 const router = Router();
 
@@ -22,9 +20,6 @@ router.get('/products/:id', getProductsByCategory); // Get products by category 
 router.put('/:id', updateCategory); // Update category
 router.delete('/:id', deleteCategory); // Delete category
 
-// Subcategory routes (nested under category)
-router.post('/:categoryId/subcategories', addSubcategory);
-router.put('/:categoryId/subcategories/:subcategoryId', updateSubcategoryController); 
-router.delete('/:categoryId/subcategories/:subcategoryId', deleteSubcategoryController);
-
+// Subcategory routes
+router.use('/', subcategoryRouter);
 export default router;

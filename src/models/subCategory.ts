@@ -1,9 +1,8 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface CategoryDocument extends Document {
+export interface Subcategory extends Document {
   name: string;
   description: string;
-  subcategories: mongoose.Types.ObjectId[]; // References Subcategory IDs
   status?: string;
   version: number;
   isActive: boolean;
@@ -13,10 +12,9 @@ export interface CategoryDocument extends Document {
   updatedBy: mongoose.Types.ObjectId;
 }
 
-const categorySchema = new Schema<CategoryDocument>({
+const subcategorySchema = new Schema<Subcategory>({
   name: { type: String, required: true },
   description: { type: String, required: true },
-  subcategories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory' }],
   status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   version: { type: Number, default: 1 },
   isActive: { type: Boolean, default: true },
@@ -26,4 +24,4 @@ const categorySchema = new Schema<CategoryDocument>({
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
-export default mongoose.model<CategoryDocument>('Category', categorySchema);
+export default mongoose.model<Subcategory>('Subcategory', subcategorySchema);

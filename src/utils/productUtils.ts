@@ -1,14 +1,20 @@
 import { Request } from 'express';
 import { FilterQuery,SortOrder } from 'mongoose';
 import { ProductDocument } from '../models/product';
+import Category from '../models/Category';
 
 // Function to build the filter object
-export const buildFilter = (query: Request['query']): FilterQuery<ProductDocument> => {
+export const buildFilter = async (query: Request['query']): Promise<FilterQuery<ProductDocument>> => {
   const { category, subcategory, name, minPrice, maxPrice } = query;
   const filter: FilterQuery<ProductDocument> = {};
-  // Filter by multiple categories
+  // Filter by category name
   if (category) {
-    filter.category = { $in: Array.isArray(category) ? category : [category] };
+    const categoryDoc = await Category.findOne({ name: category });
+    if (categoryDoc) {
+      filter.category = categoryDoc._id;
+    } else {
+      filter.category = null; // If category not found, do not filter by category
+    }
   }
   // Filter by subcategory
   if (subcategory) {

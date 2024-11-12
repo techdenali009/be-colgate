@@ -18,27 +18,67 @@ export const createProducts = async (req: Request, res: Response): Promise<void>
   }
 };
 
-// Controller function to get all products
 export const getAllProducts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { sortBy, page, limit } = req.query;
-    // Build filter, sort, and pagination
-    const filter = buildFilter(req.query);
-    console.log("Product Utils",filter);
-    const sortOption = getSortOption(sortBy as string);
-    const { pageNum, limitNum, skip } = getPagination(Number(page), Number(limit));
+    // Get query parameters for sorting, pagination, and filtering
+    const { sortBy, page = 1, limit = 10, ...filterQuery } = req.query;
 
-    // Query database with filtering, sorting, and pagination
-    const products = await Product.find(filter)
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limitNum);
-      console.log("products d",products)
+    // Build filter, sort, and pagination
+    const filter = await buildFilter(filterQuery); // Await the async filter function
+    const sortOption = getSortOption(sortBy as string); // Utility function for sort options
+    const { pageNum, limitNum, skip } = getPagination(Number(page), Number(limit)); // Utility for pagination
+
+    // Build aggregation pipeline
+    const pipeline: any[] = [
+      {
+        $match: filter,
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'category',
+          foreignField: '_id',
+          as: 'categoryDetails',
+        },
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'subCategories', // Use the subcategories linked to the product only
+          foreignField: '_id',
+          as: 'subCategoryDetails',
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          description: 1,
+          price: 1,
+          discount: 1,
+          stock: 1,
+          category: '$categoryDetails',
+          subCategories: '$subCategoryDetails', // Display only the subcategories that belong to this product
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limitNum,
+      },
+      {
+        $sort: sortOption,
+      },
+    ];
+
+    // Fetch products using aggregation
+    const products = await Product.aggregate(pipeline);
+
     // Get total count for pagination
     const totalCount = await Product.countDocuments(filter);
     const hasMore = skip + products.length < totalCount;
-    console.log("Has More",hasMore)
 
+    // Respond with data
     res.status(200).json({
       products,
       totalCount,
@@ -47,7 +87,7 @@ export const getAllProducts = async (req: Request, res: Response): Promise<void>
       totalPages: Math.ceil(totalCount / limitNum),
     });
   } catch (error) {
-    console.error("Error fetching products:", (error as Error).message);
+    console.error('Error fetching products:', (error as Error).message);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
