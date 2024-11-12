@@ -78,3 +78,43 @@ export const deleteCategory = async (id: string): Promise<CategoryDocument | nul
     throw new Error(`Error deleting category`);
   }
 };
+
+// Add multiple Subcategories to Category
+export const addSubcategoryToCategory = async (categoryId: string, subcategories: { name: string, description: string }[]) => {
+  const category = await Category.findById(categoryId);
+  if (!category) throw new Error('Category not found');
+
+  // Add all subcategories to the category
+  category.subcategories.push(...subcategories);
+  await category.save();
+  
+  return category;
+};
+
+// Update Subcategory of Category
+export const updateSubcategory = async (categoryId: string, oldSubcategoryName: string, newSubcategoryName: string, newDescription: string) => {
+  const category = await Category.findById(categoryId);
+  if (!category) throw new Error('Category not found');
+
+  const subcategory = category.subcategories.find(sub => sub.name === oldSubcategoryName);
+  if (!subcategory) throw new Error('Subcategory not found');
+
+  subcategory.name = newSubcategoryName;
+  subcategory.description = newDescription;
+
+  await category.save();
+  return category;
+};
+
+// Delete Subcategory from Category
+export const deleteSubcategory = async (categoryId: string, subcategoryName: string) => {
+  const category = await Category.findById(categoryId);
+  if (!category) throw new Error('Category not found');
+
+  const subcategoryIndex = category.subcategories.findIndex(sub => sub.name === subcategoryName);
+  if (subcategoryIndex === -1) throw new Error('Subcategory not found');
+
+  category.subcategories.splice(subcategoryIndex, 1);
+  await category.save();
+  return category;
+};
