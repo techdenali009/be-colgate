@@ -1,4 +1,4 @@
-import { Schema, model, Document, ObjectId, Mongoose } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { IUser, Status, UserType } from './interfaces';
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -29,6 +29,10 @@ const userSchema = new Schema<IUser>({
     enum: UserType,
     require: true,
     default: UserType.User
+  },
+  profilePic:{
+    type: String,
+    require: false,
   },
   status: { type: String, enum: Status, default: 'active' },
   version: { type: Number, default: 1 },

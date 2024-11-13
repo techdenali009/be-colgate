@@ -7,9 +7,16 @@ import routes from './routes/index'
 import { errorResponse } from './utils/response'
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:3000',  
+        "http://localhost:5173"
+    ], // Add allowed domains
+    credentials: true
+}
+));
 app.use(morgan('dev')); // Logging middleware
-app.use(cookieParser()); 
+app.use(cookieParser());
 
 // Routes
 app.use('/api', routes);

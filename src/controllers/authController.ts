@@ -28,7 +28,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         res.cookie(`${JWT_TOKEN_NAME}`, token, {
             httpOnly: true,
             secure: true, // Only on HTTPS in production
-            sameSite: 'strict',  // CSRF protection
+            sameSite:'none'
         });
         successResponse(res, { userInfo, token }, Messages.UserAuthenticated, StatusCode.OK);
     } catch (err: any) {
