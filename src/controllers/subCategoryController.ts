@@ -1,17 +1,43 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { addSubcategoriesToCategory, updateSubcategory, deleteSubcategory } from '../services/subCategoryService';
+import { addSubcategoriesToCategory, updateSubcategory, deleteSubcategory, getSubcategoriesByCategoryId } from '../services/subCategoryService';
 
-// Add multiple subcategories to a category
-export const addSubcategories = async (req: Request, res: Response) => {
+export const fetchSubcategoriesByCategory = async (req: Request, res: Response): Promise<void> => {
     const { categoryId } = req.params;
-    const subcategories = req.body.subcategories;
+    console.log('Fetching subcategories for category ID:', categoryId);
 
     try {
-        if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-            return res.status(400).json({ error: 'Invalid Category ID' });
-        }
+        const subcategories = await getSubcategoriesByCategoryId(categoryId);
+        console.log('Fetched subcategories:', subcategories); // Log fetched subcategories
 
+        if (subcategories.length === 0) {
+            throw new Error('No subcategories found for this category');
+        }
+        res.status(200).json(subcategories);
+    } catch (error: unknown) {
+        console.error('Error:', error);
+
+        if (error instanceof Error) {
+            if (error.message === 'No subcategories found for this category') {
+                res.status(404).json({ error: 'No subcategories found for this category' });
+            } else {
+                res.status(500).json({ error: error.message });
+            }
+        } else {
+            res.status(500).json({ error: 'An unexpected error occurred' });
+        }
+    }
+};
+
+// Add multiple subcategories to a category
+export const addSubcategories = async (req: Request, res: Response): Promise<void> => {
+    const { categoryId } = req.params;
+    const subcategories = req.body.subcategories;
+    try {
+        if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+            res.status(400).json({ error: 'Invalid Category ID' });
+            return;
+        }
         const updatedCategory = await addSubcategoriesToCategory(categoryId, subcategories);
         res.status(200).json(updatedCategory);
     } catch (error) {
@@ -19,46 +45,44 @@ export const addSubcategories = async (req: Request, res: Response) => {
     }
 };
 
-export const editSubcategory = async (req: Request, res: Response) => {
+export const editSubcategory = async (req: Request, res: Response): Promise<void> => {
     const { subcategoryId } = req.params;
-    const updatedData = req.body;
+    const { name, description } = req.body;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(subcategoryId)) {
+        res.status(400).json({ error: 'Invalid Subcategory ID' });
+        return;
+    }
+
+    // Check if the required fields are present
+    if (!name || !description) {
+        res.status(400).json({ error: 'Name and description are required' });
+        return;
+    }
 
     try {
-        if (!mongoose.Types.ObjectId.isValid(subcategoryId)) {
-            return res.status(400).json({ error: 'Invalid Subcategory ID' });
-        }
-
-        const updatedSubcategory = await updateSubcategory(subcategoryId, updatedData);
+        const updatedSubcategory = await updateSubcategory(subcategoryId, { name, description });
         res.status(200).json(updatedSubcategory);
     } catch (error) {
-        // Narrow the type of error to `Error`
-        if (error instanceof Error) {
-            res.status(500).json({ error: error.message });
-        } else {
-            // Fallback in case the error is not an instance of Error
-            res.status(500).json({ error: 'An unexpected error occurred' });
-        }
+        res.status(500).json({ error: error instanceof Error ? error.message : 'An unexpected error occurred' });
     }
 };
 
-
 // Delete a subcategory from a category
-export const removeSubcategory = async (req: Request, res: Response) => {
+export const removeSubcategory = async (req: Request, res: Response): Promise<void> => {
     const { categoryId, subcategoryId } = req.params;
-
     try {
         if (!mongoose.Types.ObjectId.isValid(categoryId) || !mongoose.Types.ObjectId.isValid(subcategoryId)) {
-            return res.status(400).json({ error: 'Invalid IDs provided' });
+            res.status(400).json({ error: 'Invalid IDs provided' });
+            return;
         }
-
         const updatedCategory = await deleteSubcategory(categoryId, subcategoryId);
         res.status(200).json(updatedCategory);
     } catch (error) {
-        // Narrow the type of error to `Error`
         if (error instanceof Error) {
             res.status(500).json({ error: error.message });
         } else {
-            // Fallback in case the error is not an instance of Error
             res.status(500).json({ error: 'An unexpected error occurred' });
         }
     }

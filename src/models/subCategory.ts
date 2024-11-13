@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface Subcategory extends Document {
   name: string;
   description: string;
+  category: mongoose.Types.ObjectId;
   status?: string;
   version: number;
   isActive: boolean;
@@ -15,6 +16,7 @@ export interface Subcategory extends Document {
 const subcategorySchema = new Schema<Subcategory>({
   name: { type: String, required: true },
   description: { type: String, required: true },
+  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   version: { type: Number, default: 1 },
   isActive: { type: Boolean, default: true },
