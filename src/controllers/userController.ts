@@ -11,7 +11,12 @@ import { Messages } from '../utils/constants';
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     const users = await getAllUsersService();
-    res.status(200).json(users);
+    res.status(200).json({
+      status: true,
+      data: {
+        users
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: Messages.Fetch_Error });
   }
