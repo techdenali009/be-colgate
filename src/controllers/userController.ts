@@ -5,8 +5,6 @@ import { failResponse, successResponse } from '../utils/response';
 import { StatusCode } from '../utils/StatusCodes';
 import { Messages } from '../utils/constants';
 
-
-
 // GET all users
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {

@@ -27,8 +27,10 @@ export const createCategories = async (req: Request, res: Response): Promise<voi
 
 export const getAllCategories = async (_req: Request, res: Response): Promise<void> => {
   try {
-
+    // Fetch categories and populate the subcategories field with name and description
     const categories = await categoryService.getAllCategories();
+    
+    // Return the categories along with populated subcategory details
     res.status(200).json(categories);
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });

@@ -35,16 +35,16 @@ export const getAllProducts = async (req: Request, res: Response): Promise<void>
       },
       {
         $lookup: {
-          from: 'categories',
-          localField: 'category',
+          from: 'categories',  // Ensure 'categories' is the correct collection name
+          localField: 'category',  // Reference field in the Product document
           foreignField: '_id',
           as: 'categoryDetails',
         },
       },
       {
         $lookup: {
-          from: 'categories',
-          localField: 'subCategories', // Use the subcategories linked to the product only
+          from: 'subcategories',  // Make sure this is correct (case-sensitive)
+          localField: 'subCategories',  // Product's subCategories references
           foreignField: '_id',
           as: 'subCategoryDetails',
         },
@@ -56,8 +56,20 @@ export const getAllProducts = async (req: Request, res: Response): Promise<void>
           price: 1,
           discount: 1,
           stock: 1,
-          category: '$categoryDetails',
-          subCategories: '$subCategoryDetails', // Display only the subcategories that belong to this product
+          category: {
+            name: { $arrayElemAt: ['$categoryDetails.name', 0] },
+            description: { $arrayElemAt: ['$categoryDetails.description', 0] }
+          },
+          subCategories: {
+            $map: {
+              input: '$subCategoryDetails',
+              as: 'subCategory',
+              in: {
+                name: '$$subCategory.name',
+                description: '$$subCategory.description',
+              }
+            }
+          },
         },
       },
       {
@@ -70,10 +82,10 @@ export const getAllProducts = async (req: Request, res: Response): Promise<void>
         $sort: sortOption,
       },
     ];
+  
 
     // Fetch products using aggregation
     const products = await Product.aggregate(pipeline);
-
     // Get total count for pagination
     const totalCount = await Product.countDocuments(filter);
     const hasMore = skip + products.length < totalCount;

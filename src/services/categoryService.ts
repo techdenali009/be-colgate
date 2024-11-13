@@ -12,16 +12,21 @@ export const createCategory = async (data: any): Promise<CategoryDocument[]> => 
   }
 };
 
-// Get All Categories - returns an array of CategoryDocument
+// Get all categories along with subcategory details (name and description)
 export const getAllCategories = async (): Promise<CategoryDocument[]> => {
   console.log('getAllCategories called');
   try {
-    const categories = await Category.find().lean<CategoryDocument[]>().exec();
+    // Fetch categories and populate the subcategories field with name and description
+    const categories = await Category.find()
+      .populate('subcategories', 'name description') // Populating subcategories with 'name' and 'description'
+      .lean<CategoryDocument[]>()
+      .exec();
+    
     console.log('Fetched categories:', categories);
-    return categories; // Return array of CategoryDocuments
+    return categories; // Return array of CategoryDocuments with populated subcategories
   } catch (error) {
     console.error('Error fetching categories:', error);
-    throw new Error(`Error fetching categories`);
+    throw new Error('Error fetching categories');
   }
 };
 
@@ -78,4 +83,3 @@ export const deleteCategory = async (id: string): Promise<CategoryDocument | nul
     throw new Error(`Error deleting category`);
   }
 };
-
