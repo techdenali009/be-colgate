@@ -118,12 +118,12 @@ export const buildProductAggregationPipeline = async (
             },
           },
         },
+        images:1,
       },
     },
 
     // Apply sorting
     { $sort: sortOption },
-
     // Apply pagination
     { $skip: skip },
     { $limit: limitNum },
