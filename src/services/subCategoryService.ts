@@ -3,31 +3,16 @@ import Category, { CategoryDocument } from '../models/Category';
 import Subcategory, { Subcategory as SubcategoryDocument } from '../models/subCategory';
 import { Messages } from '../utils/constants';
 
-export const getSubcategoriesByCategoryId = async (categoryId: string): Promise<SubcategoryDocument[]> => {
-    try {
-        // Validate if the categoryId is a valid MongoDB ObjectId
-        if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-            throw new Error(Messages.Category_Not_Found);
-        }
-        // Fetch subcategories for the given categoryId
-        const subcategories = await Subcategory.find({ category: categoryId }).exec();
-        // Check if subcategories exist
-        if (!subcategories || subcategories.length === 0) {
-            throw new Error(Messages.Get_SubCategory_Not_Found);
-        }
-        return subcategories;
-    } catch (error) {
-        throw new Error((error as Error).message);
-    }
-};
-
-export const addSubcategoriesToCategory = async (categoryId: string,subcategories: { name: string; description: string }[]): Promise<CategoryDocument> => {
+export const addSubcategoriesToCategory = async (categoryId: string, subcategories: { name: string; description: string }[]): Promise<CategoryDocument> => {
     try {
         // Check if the category exists
         const category = await Category.findById(categoryId);
         if (!category) throw new Error(Messages.Category_Not_Found);
+        // Convert categoryId to ObjectId and add it to each subcategory
+        const subcategoriesWithCategory = subcategories.map(sub => ({ ...sub, category: new mongoose.Types.ObjectId(categoryId), }));
+        // Convert to ObjectId
         // Create subcategories in the Subcategory collection
-        const createdSubcategories = await Subcategory.insertMany(subcategories) as SubcategoryDocument[];
+        const createdSubcategories = await Subcategory.insertMany(subcategoriesWithCategory) as SubcategoryDocument[];
         // Extract the IDs of the newly created subcategories
         const subcategoryIds = createdSubcategories.map(sub => sub._id as mongoose.Types.ObjectId);
         // Add the subcategory IDs to the category
@@ -39,7 +24,7 @@ export const addSubcategoriesToCategory = async (categoryId: string,subcategorie
     }
 };
 
-export const updateSubcategory = async (subcategoryId: string,updatedData: { name: string; description: string }): Promise<SubcategoryDocument> => {
+export const updateSubcategory = async (subcategoryId: string, updatedData: { name: string; description: string }): Promise<SubcategoryDocument> => {
     try {
         // Check if the subcategory exists
         const subcategory = await Subcategory.findById(subcategoryId);
@@ -54,7 +39,7 @@ export const updateSubcategory = async (subcategoryId: string,updatedData: { nam
     }
 };
 
-export const deleteSubcategory = async (categoryId: string,subcategoryId: string): Promise<CategoryDocument> => {
+export const deleteSubcategory = async (categoryId: string, subcategoryId: string): Promise<CategoryDocument> => {
     try {
         // Check if the category exists
         const category = await Category.findById(categoryId);

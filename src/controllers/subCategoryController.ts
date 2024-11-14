@@ -1,83 +1,54 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { addSubcategoriesToCategory, updateSubcategory, deleteSubcategory, getSubcategoriesByCategoryId } from '../services/subCategoryService';
-import { failResponse, successResponse } from '../utils/response';
+import { addSubcategoriesToCategory, updateSubcategory, deleteSubcategory } from '../services/subCategoryService';
+import { failResponse, successResponse, errorResponse } from '../utils/response';
 import { StatusCode } from '../utils/StatusCodes';
 import { Messages } from '../utils/constants';
 
-export const fetchSubcategoriesByCategory = async (req: Request, res: Response): Promise<void> => {
-    const { categoryId } = req.params;
-    try {
-        const subcategories = await getSubcategoriesByCategoryId(categoryId);
-        if (subcategories.length === 0) {
-            throw new Error(Messages.Get_SubCategory_Not_Found);
-        }
-        res.status(200).json(subcategories);
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            if (error.message === Messages.Get_SubCategory_Not_Found) {
-                res.status(404).json({ error: Messages.Get_SubCategory_Not_Found });
-            } else {
-                res.status(500).json({ error: error.message });
-            }
-        } else {
-            res.status(500).json({ error: Messages.Unexpected_Error });
-        }
-    }
-};
-
-// Add multiple subcategories to a category
 export const addSubcategories = async (req: Request, res: Response): Promise<void> => {
     const { categoryId } = req.params;
     const subcategories = req.body.subcategories;
     try {
         if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-            res.status(400).json({ error: Messages.Invalid_Category_ID });
+            failResponse(res, Messages.Invalid_Category_ID, StatusCode.Bad_Request);
             return;
         }
         const updatedCategory = await addSubcategoriesToCategory(categoryId, subcategories);
-        res.status(200).json(updatedCategory);
+        successResponse(res, updatedCategory, Messages.SubCategories_Added, StatusCode.OK);
     } catch (error) {
-        res.status(500).json({ error: Messages.Failed_To_Add_SubCategories });
+        errorResponse(res, (error as Error).message || Messages.Failed_To_Add_SubCategories, StatusCode.Internal_Server_Error);
     }
 };
 
 export const editSubcategory = async (req: Request, res: Response): Promise<void> => {
     const { subcategoryId } = req.params;
     const { name, description } = req.body;
-    // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(subcategoryId)) {
-        res.status(400).json({ error: Messages.Invalid_Category_ID });
+        failResponse(res, Messages.Invalid_Category_ID, StatusCode.Bad_Request);
         return;
     }
-    // Check if the required fields are present
     if (!name || !description) {
-        res.status(400).json({ error: Messages.Name_And_Description_Required });
+        failResponse(res, Messages.Name_And_Description_Required, StatusCode.Bad_Request);
         return;
     }
     try {
         const updatedSubcategory = await updateSubcategory(subcategoryId, { name, description });
-        res.status(200).json(updatedSubcategory);
+        successResponse(res, updatedSubcategory, Messages.SubCategory_Updated, StatusCode.OK);
     } catch (error) {
-        res.status(500).json({ error: error instanceof Error ? error.message : Messages.Unexpected_Error });
+        errorResponse(res, (error as Error).message);
     }
 };
 
-// Delete a subcategory from a category
 export const removeSubcategory = async (req: Request, res: Response): Promise<void> => {
     const { categoryId, subcategoryId } = req.params;
     try {
         if (!mongoose.Types.ObjectId.isValid(categoryId) || !mongoose.Types.ObjectId.isValid(subcategoryId)) {
-            res.status(400).json({ error: Messages.Invalid_Category_ID });
+            failResponse(res, Messages.Invalid_Category_ID, StatusCode.Bad_Request);
             return;
         }
         const updatedCategory = await deleteSubcategory(categoryId, subcategoryId);
-        res.status(200).json(updatedCategory);
+        successResponse(res, updatedCategory, Messages.SubCategory_Deleted, StatusCode.OK);
     } catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ error: error.message });
-        } else {
-            res.status(500).json({ error: Messages.Unexpected_Error });
-        }
+        errorResponse(res, (error as Error).message);
     }
 };

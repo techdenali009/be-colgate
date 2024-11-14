@@ -24,4 +24,7 @@ export const Messages = {
     Invalid_Category_ID:"Invalid Category ID",
     Failed_To_Add_SubCategories:"Failed to add subcategories",
     Name_And_Description_Required:"Name and description are required",
+    SubCategory_Updated: 'Subcategory updated successfully',
+    SubCategory_Deleted: 'Subcategory deleted successfully',
+    SubCategories_Added: 'Subcategories added successfully'
 }
