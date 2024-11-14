@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import * as categoryService from '../services/categoryService';
+import { failResponse, successResponse } from '../utils/response';
+import { StatusCode } from '../utils/StatusCodes';
+import { Messages } from '../utils/constants';
 
 // Category CRUD Operations
 export const createCategories = async (req: Request, res: Response): Promise<void> => {
@@ -11,7 +14,6 @@ export const createCategories = async (req: Request, res: Response): Promise<voi
   }
   try {
     const categories = req.body;
-
     if (!Array.isArray(categories)) {
       res.status(400).json({ message: 'Request body must be an array of categories.' });
       return;

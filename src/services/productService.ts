@@ -17,10 +17,7 @@ export const createProducts = async (productData: any[]): Promise<ProductDocumen
   }
 };
 
-export const getAllProducts = async (
-  filter: any = {},
-  sortOptions: any = {}
-): Promise<ProductDocument[]> => {
+export const getAllProducts = async (filter: any = {},sortOptions: any = {}): Promise<ProductDocument[]> => {
   try {
     const products = await Product.find(filter).sort(sortOptions);
     console.log("Fetched products:", products);

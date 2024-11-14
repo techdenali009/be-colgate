@@ -16,5 +16,8 @@ export const Messages = {
     Not_Authorized_No_Token: "Not authorized, no token",
     Invalid_Token: "Invalid token.",
     Token_Expired:"Token expired. Please log in again.",
-    Token_Expired_Error: "TokenExpiredError"
+    Token_Expired_Error: "TokenExpiredError",
+    Get_SubCategory_Not_Found :"No subcategories found for this category",
+    Category_Not_Found:"Category not found",
+    SubCategory_Not_Found:"Subcategory not found",
 }

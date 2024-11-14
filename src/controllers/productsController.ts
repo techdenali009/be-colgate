@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import Product, * as productService from '../services/productService';
-import  { buildFilter, getSortOption, getPagination } from '../utils/productUtils';
+import { buildFilter, getSortOption, getPagination, buildProductAggregationPipeline } from '../utils/productUtils';
 
 // Create new products (handling multiple products)
 export const createProducts = async (req: Request, res: Response): Promise<void> => {
@@ -23,80 +23,23 @@ export const getAllProducts = async (req: Request, res: Response): Promise<void>
     // Get query parameters for sorting, pagination, and filtering
     const { sortBy, page = 1, limit = 10, ...filterQuery } = req.query;
 
-    // Build filter, sort, and pagination
-    const filter = await buildFilter(filterQuery); // Await the async filter function
-    const sortOption = getSortOption(sortBy as string); // Utility function for sort options
-    const { pageNum, limitNum, skip } = getPagination(Number(page), Number(limit)); // Utility for pagination
-
-    // Build aggregation pipeline
-    const pipeline: any[] = [
-      {
-        $match: filter,
-      },
-      {
-        $lookup: {
-          from: 'categories',  // Ensure 'categories' is the correct collection name
-          localField: 'category',  // Reference field in the Product document
-          foreignField: '_id',
-          as: 'categoryDetails',
-        },
-      },
-      {
-        $lookup: {
-          from: 'subcategories',  // Make sure this is correct (case-sensitive)
-          localField: 'subCategories',  // Product's subCategories references
-          foreignField: '_id',
-          as: 'subCategoryDetails',
-        },
-      },
-      {
-        $project: {
-          name: 1,
-          description: 1,
-          price: 1,
-          discount: 1,
-          stock: 1,
-          category: {
-            name: { $arrayElemAt: ['$categoryDetails.name', 0] },
-            description: { $arrayElemAt: ['$categoryDetails.description', 0] }
-          },
-          subCategories: {
-            $map: {
-              input: '$subCategoryDetails',
-              as: 'subCategory',
-              in: {
-                name: '$$subCategory.name',
-                description: '$$subCategory.description',
-              }
-            }
-          },
-        },
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: limitNum,
-      },
-      {
-        $sort: sortOption,
-      },
-    ];
-  
+    // Call the utility function to build the aggregation pipeline
+    const pipeline = await buildProductAggregationPipeline(filterQuery, sortBy as string, Number(page), Number(limit));
 
     // Fetch products using aggregation
     const products = await Product.aggregate(pipeline);
+
     // Get total count for pagination
-    const totalCount = await Product.countDocuments(filter);
-    const hasMore = skip + products.length < totalCount;
+    const totalCount = await Product.countDocuments(await buildFilter(filterQuery));
+    const hasMore = (Number(page) - 1) * Number(limit) + products.length < totalCount;
 
     // Respond with data
     res.status(200).json({
       products,
       totalCount,
       hasMore,
-      currentPage: pageNum,
-      totalPages: Math.ceil(totalCount / limitNum),
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalCount / Number(limit)),
     });
   } catch (error) {
     console.error('Error fetching products:', (error as Error).message);
@@ -125,7 +68,6 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     res.status(400).json({ errors: errors.array() });
     return;
   }
-
   try {
     const product = await productService.updateProduct(req.params.id, req.body);
     if (!product) {
@@ -155,7 +97,6 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
 // Get products by category ID
 export const getProductsByCategory = async (req: Request, res: Response): Promise<void> => {
   const { categoryId } = req.params;
-
   try {
     const products = await productService.getProductsByCategory(categoryId);
     if (!products.length) {

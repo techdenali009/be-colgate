@@ -74,6 +74,7 @@ const productSchema = new Schema<ProductDocument>({
   averageRating: { type: Number, default: 0 },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-}, { timestamps: true });
+},
+  { timestamps: true });
 
 export default mongoose.model<ProductDocument>('Product', productSchema);
