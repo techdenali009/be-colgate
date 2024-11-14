@@ -26,5 +26,13 @@ export const Messages = {
     Name_And_Description_Required:"Name and description are required",
     SubCategory_Updated: 'Subcategory updated successfully',
     SubCategory_Deleted: 'Subcategory deleted successfully',
-    SubCategories_Added: 'Subcategories added successfully'
+    SubCategories_Added: 'Subcategories added successfully',
+    Error_Fetching_Categories:'Error fetching categories',
+    Error_Fetching_Categories_ID:'Error fetching category by ID',
+    Error_Fetching_Products_By_Categories:'Error fetching products by category',
+    Error_Updating_Category:"Error updating category",
+    Error_deleting_Category:"Error deleting category",
+    No_Products_Found_For_This_Category:"No products found for this category",
+    Category_Deleted_Successfully:"Category deleted successfully",
+
 }
