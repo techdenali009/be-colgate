@@ -20,4 +20,8 @@ export const Messages = {
     Get_SubCategory_Not_Found :"No subcategories found for this category",
     Category_Not_Found:"Category not found",
     SubCategory_Not_Found:"Subcategory not found",
+    Unexpected_Error:"An unexpected error occurred",
+    Invalid_Category_ID:"Invalid Category ID",
+    Failed_To_Add_SubCategories:"Failed to add subcategories",
+    Name_And_Description_Required:"Name and description are required",
 }
