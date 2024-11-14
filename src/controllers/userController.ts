@@ -5,13 +5,15 @@ import { failResponse, successResponse } from '../utils/response';
 import { StatusCode } from '../utils/StatusCodes';
 import { Messages } from '../utils/constants';
 
+export interface UserQuery { search: string, page: number, limit: number, userType: string }
+
 // GET all users
 export const getUsers = async (req: Request, res: Response): Promise<void> => {
   try {
-    const users = await getAllUsersService();
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: Messages.Fetch_Error });
+    const users = await getAllUsersService(req.query as any);
+    successResponse(res, users, '', StatusCode.OK);
+  } catch (error: any) {
+    failResponse(res, error?.message || error, StatusCode.Bad_Request)
   }
 };
 

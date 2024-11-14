@@ -34,5 +34,7 @@ export const Messages = {
     Error_deleting_Category:"Error deleting category",
     No_Products_Found_For_This_Category:"No products found for this category",
     Category_Deleted_Successfully:"Category deleted successfully",
-
+    Product_Not_Found:"Product not found",
+    Product_Deleted:"Product deleted",
+    Product_Created:"Product created",
 }

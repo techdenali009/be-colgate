@@ -17,12 +17,21 @@ export interface IUser extends IBasicFields {
     firstName: string;
     lastName: string
     password: string;
-    userType: UserType
+    userType: UserType,
+    profilePic: string,
+    address?: {
+        street: string,
+        city: string,
+        state: string,
+        zipCode: string,
+        country: string,
+        phone:number
+    }
 }
 
 export enum UserType {
     Admin = "admin",
-    User = "User",
+    User = "user",
     Operator = "Operator"
 }
 

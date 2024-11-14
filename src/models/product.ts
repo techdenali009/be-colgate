@@ -19,7 +19,6 @@ interface InventoryLocation {
 interface Image {
   url: string;
   altText: string;
-  order: number;
 }
 
 export interface ProductDocument extends Document {
@@ -68,7 +67,6 @@ const productSchema = new Schema<ProductDocument>({
     {
       url: { type: String, required: true },
       altText: { type: String, required: true },
-      order: { type: Number, required: true },
     },
   ],
   averageRating: { type: Number, default: 0 },

@@ -2,6 +2,7 @@ require('dotenv').config(); // Load environment variables from .env
 const app = require('./app');
 const http = require('http');
 const connetDataBase = require('./config/db');
+const mongoose = require("mongoose");
 const server = http.createServer(app);
 
 // Start server on the specified port
@@ -21,5 +22,15 @@ connetDataBase().then((res: any) => {
 });
 
 
+process.on('SIGINT', async () => {
+    try {
+        await mongoose?.connection?.close();
+        console.log('MongoDB connection closed');
+        process.exit(0);  // Exit process
+    } catch (err) {
+        console.error('Error closing MongoDB connection:', err);
+        process.exit(1);
+    }
+});
 
 export { };
