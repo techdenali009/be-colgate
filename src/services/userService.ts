@@ -2,11 +2,40 @@ import { ObjectId } from 'mongoose';
 import { IUser } from '../models/interfaces';
 import User from '../models/User';
 import { Messages } from '../utils/constants';
+import { buildPaginationQuery } from '../utils/appFunctions';
 
-export const getAllUsersService = async () => {
+export const getAllUsersService = async (query: { search: string, page: number, limit: number, userType: string, status: string }) => {
     try {
-        return await User.find({isActive:true});
+        const { skip, limit } = buildPaginationQuery(query)
+        const { userType, status, search } = query;
+
+        let searchFilter: any = {
+            $and: [
+                { isActive: true },
+                (userType && { userType: userType }),
+                (status && { status: status })
+
+            ].filter((option) => !!option),
+
+            ...(search && {
+                $or: [
+                    { firstName: { $regex: search, $options: 'i' } },
+                    { lastName: { $regex: search, $options: 'i' } },
+                ],
+            })
+        };
+
+        const hasMore = await User.countDocuments(searchFilter).then(count => count > skip + limit);
+        const selectedFields = `email userType lastName firstName status address`
+        const users = await User.find(searchFilter)
+            .skip(skip)
+            .limit(limit)
+            .select(selectedFields)
+            .exec();
+
+        return { users, hasMore };
     } catch (err) {
+        console.log('err', err)
         return err;
     }
 }
@@ -23,7 +52,7 @@ export const createUserService = async (body: IUser): Promise<IUser | any> => {
         }
         const newUser = new User(body);
         const savedUser = await newUser.save();
-    
+
         savedUser.createdBy = savedUser._id as ObjectId;
         savedUser.updatedBy = savedUser._id as ObjectId;
         await savedUser.save();

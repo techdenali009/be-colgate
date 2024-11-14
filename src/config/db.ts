@@ -3,14 +3,27 @@ const mongoose = require("mongoose");
 const connetDataBase = async (): Promise<any> => {
   console.log('MangoDB connecting....');
   try {
-    const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true },  family: 4,};
+    mongoose?.connection?.close();
+    const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true }, family: 4, };
     await mongoose.connect(`${process.env.MONGO_URL}${process.env.DATABASE}`, clientOptions);
-    console.log('MangoDB connected successfully.');
   } catch (err) {
-    console.log("Error in DataBase Connection :", err);
     throw Error('MangoDB Connection issue')
-    
   }
 };
+
+
+// Listen to connection events
+mongoose.connection.on('connected', () => {
+  console.log('Mongoose connected to MongoDB');
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('Mongoose disconnected');
+});
+
+mongoose.connection.on('error', (err:any) => {
+  console.log('Error in MongoDB connection:', err);
+});
+
 
 module.exports = connetDataBase;

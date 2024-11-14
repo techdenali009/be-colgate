@@ -18,7 +18,15 @@ export interface IUser extends IBasicFields {
     lastName: string
     password: string;
     userType: UserType,
-    profilePic: string
+    profilePic: string,
+    address?: {
+        street: string,
+        city: string,
+        state: string,
+        zipCode: string,
+        country: string,
+        phone:number
+    }
 }
 
 export enum UserType {

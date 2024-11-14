@@ -4,13 +4,34 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 
+
+const addressSchema = new mongoose.Schema({
+  street: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  zipCode: { type: String, required: true },
+  country: { type: String, required: true },
+  phone: {
+    type: String,
+    required: true,
+    minlength: [10, 'Phone number must be at least 10 digits long'],
+    maxlength: [15, 'Phone number cannot exceed 15 digits'],
+    validate: {
+      validator: function (v: string) {
+        return /^\d+$/.test(v);
+      },
+      message: (props: any) => `${props?.value} is not a valid phone number! Phone number should contain only digits.`
+    }
+  }
+});
+
 // User schema
 const userSchema = new Schema<IUser>({
   email: {
     type: String,
     required: true,
     unique: true,
-  
+
   },
   firstName: {
     type: String,
@@ -30,9 +51,13 @@ const userSchema = new Schema<IUser>({
     require: true,
     default: UserType.User
   },
-  profilePic:{
+  profilePic: {
     type: String,
     require: false,
+  },
+  address: {
+    type: addressSchema,
+    required: false
   },
   status: { type: String, enum: Status, default: 'active' },
   version: { type: Number, default: 1 },
@@ -49,8 +74,8 @@ const userSchema = new Schema<IUser>({
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next(); // Skip if password is not modified
-  const saltRounds = +`${process.env.PASSWORD_SALT}`; 
-  this.password = await bcrypt.hash(this.password, saltRounds); 
+  const saltRounds = +`${process.env.PASSWORD_SALT}`;
+  this.password = await bcrypt.hash(this.password, saltRounds);
   next();
 });
 
