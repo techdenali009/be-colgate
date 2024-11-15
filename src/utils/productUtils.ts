@@ -1,13 +1,14 @@
 import { FilterQuery } from 'mongoose';
 import { ProductDocument } from '../models/product';
 import Category from '../models/Category';
+import subCategory from '../models/subCategory';
 
 // Function to build the filter object
 export const buildFilter = async (query: any): Promise<FilterQuery<ProductDocument>> => {
-  const { category, subcategory, name, minPrice, maxPrice } = query;
+  const { category, subcategory, name, minPrice, maxPrice, skinType, skinConcern } = query;
   const filter: FilterQuery<ProductDocument> = {};
 
-  // Handle multiple categories
+  // Handle filtering by categories
   if (category) {
     const categoryNames = Array.isArray(category) ? category : [category];
     const categoryDocs = await Category.find({ name: { $in: categoryNames } });
@@ -15,9 +16,21 @@ export const buildFilter = async (query: any): Promise<FilterQuery<ProductDocume
     filter.category = { $in: categoryIds };
   }
 
-  // Handle subcategory filtering
-  if (subcategory) {
-    filter.subCategories = { $in: Array.isArray(subcategory) ? subcategory : [subcategory] };
+  // Handle filtering by subcategories (for both skin type and skin concern)
+  const subcategoryFilters: string[] = [];
+  
+  if (skinType) {
+    subcategoryFilters.push(skinType);
+  }
+
+  if (skinConcern) {
+    subcategoryFilters.push(skinConcern);
+  }
+
+  if (subcategoryFilters.length > 0) {
+    const subcategoryDocs = await subCategory.find({ name: { $in: subcategoryFilters } });
+    const subcategoryIds = subcategoryDocs.map((sub) => sub._id);
+    filter.subCategories = { $in: subcategoryIds };
   }
 
   // Search by product name using regex (case-insensitive)
@@ -71,7 +84,7 @@ export const buildProductAggregationPipeline = async (
   const { limitNum, skip } = getPagination(page, limit);
 
   return [
-    { $match: filter }, // Apply the filters
+    { $match: filter }, // Apply the updated filters
 
     // Lookup to get category details
     {
@@ -93,10 +106,8 @@ export const buildProductAggregationPipeline = async (
       },
     },
 
-    // Unwind categoryDetails to get a single category object
     { $unwind: { path: '$categoryDetails', preserveNullAndEmptyArrays: true } },
 
-    // Project to include only required fields
     {
       $project: {
         name: 1,
@@ -118,14 +129,13 @@ export const buildProductAggregationPipeline = async (
             },
           },
         },
-        images:1,
+        images: 1,
       },
     },
 
-    // Apply sorting
     { $sort: sortOption },
-    // Apply pagination
     { $skip: skip },
     { $limit: limitNum },
   ];
 };
+

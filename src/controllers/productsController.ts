@@ -23,22 +23,34 @@ export const createProducts = async (req: Request, res: Response): Promise<void>
   }
 };
 
-// Get all products with filtering, sorting, and pagination
 export const getAllProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const { sortBy, page = 1, limit = 10, ...filterQuery } = req.query;
-    const pipeline = await buildProductAggregationPipeline(filterQuery, sortBy as string, Number(page), Number(limit));
+
+    // Build the aggregation pipeline with the updated filters
+    const pipeline = await buildProductAggregationPipeline(
+      filterQuery,
+      sortBy as string,
+      Number(page),
+      Number(limit)
+    );
 
     const products = await Product.aggregate(pipeline);
     const totalCount = await Product.countDocuments(await buildFilter(filterQuery));
     const hasMore = (Number(page) - 1) * Number(limit) + products.length < totalCount;
-    successResponse(res, {products,totalCount,hasMore,currentPage: Number(page),totalPages: Math.ceil(totalCount / Number(limit)),});
-    return;
+
+    successResponse(res, {
+      products,
+      totalCount,
+      hasMore,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalCount / Number(limit)),
+    });
   } catch (error) {
-    errorResponse(res, Messages.Error_Fetching_Products_By_Categories);
-    return; 
+    errorResponse(res, 'Error fetching products by filters');
   }
 };
+
 
 // Get product by ID
 export const getProductById = async (req: Request, res: Response): Promise<void> => {
