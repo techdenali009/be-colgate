@@ -5,9 +5,8 @@ import subCategory from '../models/subCategory';
 
 // Function to build the filter object
 export const buildFilter = async (query: any): Promise<FilterQuery<ProductDocument>> => {
-  const { category, name, minPrice, maxPrice, skinType, skinConcern } = query;
+  const { category, name, minPrice, maxPrice, 'skin-type': skinType , 'skin-concern': skinConcern } = query;
   const filter: FilterQuery<ProductDocument> = {};
-
   // Handle filtering by categories
   if (category) {
     const categoryNames = Array.isArray(category) ? category : [category];
@@ -18,33 +17,27 @@ export const buildFilter = async (query: any): Promise<FilterQuery<ProductDocume
 
   // Handle filtering by subcategories (for both skin type and skin concern)
   const subcategoryFilters: string[] = [];
-  
   if (skinType) {
     subcategoryFilters.push(skinType);
   }
-
   if (skinConcern) {
     subcategoryFilters.push(skinConcern);
   }
-
   if (subcategoryFilters.length > 0) {
     const subcategoryDocs = await subCategory.find({ name: { $in: subcategoryFilters } });
     const subcategoryIds = subcategoryDocs.map((sub) => sub._id);
     filter.subCategories = { $in: subcategoryIds };
   }
-
   // Search by product name using regex (case-insensitive)
   if (name) {
     filter.name = { $regex: name, $options: 'i' };
   }
-
   // Filter by price range
   if (minPrice || maxPrice) {
     filter.price = {};
     if (minPrice) filter.price.$gte = parseFloat(minPrice as string);
     if (maxPrice) filter.price.$lte = parseFloat(maxPrice as string);
   }
-
   return filter;
 };
 
