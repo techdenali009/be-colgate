@@ -5,7 +5,7 @@ import subCategory from '../models/subCategory';
 
 // Function to build the filter object
 export const buildFilter = async (query: any): Promise<FilterQuery<ProductDocument>> => {
-  const { category, subcategory, name, minPrice, maxPrice, skinType, skinConcern } = query;
+  const { category, name, minPrice, maxPrice, skinType, skinConcern } = query;
   const filter: FilterQuery<ProductDocument> = {};
 
   // Handle filtering by categories

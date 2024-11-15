@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import Product, * as productService from '../services/productService';
-import { buildFilter, getSortOption, getPagination, buildProductAggregationPipeline } from '../utils/productUtils';
+import { buildFilter, buildProductAggregationPipeline } from '../services/productFilters';
 import { failResponse, successResponse, errorResponse } from '../utils/response';
 import { StatusCode } from '../utils/StatusCodes';
 import { Messages } from '../utils/constants';
@@ -26,7 +26,6 @@ export const createProducts = async (req: Request, res: Response): Promise<void>
 export const getAllProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const { sortBy, page = 1, limit = 10, ...filterQuery } = req.query;
-
     // Build the aggregation pipeline with the updated filters
     const pipeline = await buildProductAggregationPipeline(
       filterQuery,
@@ -34,11 +33,9 @@ export const getAllProducts = async (req: Request, res: Response): Promise<void>
       Number(page),
       Number(limit)
     );
-
     const products = await Product.aggregate(pipeline);
     const totalCount = await Product.countDocuments(await buildFilter(filterQuery));
     const hasMore = (Number(page) - 1) * Number(limit) + products.length < totalCount;
-
     successResponse(res, {
       products,
       totalCount,
