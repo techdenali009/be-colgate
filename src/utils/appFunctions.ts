@@ -1,7 +1,8 @@
 
 export const buildPaginationQuery = (query: any): {
     skip: number,
-    limit: number
+    limit: number,
+    page: number
 } => {
     try {
         const page = parseInt(query.page) || 1; // Default to page 1
@@ -9,12 +10,14 @@ export const buildPaginationQuery = (query: any): {
         const skip = (page - 1) * limit;
         return {
             limit,
-            skip
+            skip,
+            page
         }
     } catch (err) {
         return {
             skip: 0,
-            limit: 10
+            limit: 10,
+            page: 1
         }
     }
 

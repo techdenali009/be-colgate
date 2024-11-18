@@ -6,7 +6,7 @@ import { buildPaginationQuery } from '../utils/appFunctions';
 
 export const getAllUsersService = async (query: { search: string, page: number, limit: number, userType: string, status: string }) => {
     try {
-        const { skip, limit } = buildPaginationQuery(query)
+        const { skip, limit, page } = buildPaginationQuery(query)
         const { userType, status, search } = query;
 
         let searchFilter: any = {
@@ -25,7 +25,11 @@ export const getAllUsersService = async (query: { search: string, page: number, 
             })
         };
 
-        const hasMore = await User.countDocuments(searchFilter).then(count => count > skip + limit);
+
+        const totalRecords = await User.countDocuments(searchFilter)
+        const totalPages = Math.ceil(totalRecords / limit);
+        const hasMore = page < totalPages;
+
         const selectedFields = `email userType lastName firstName status address`
         const users = await User.find(searchFilter)
             .skip(skip)
@@ -33,7 +37,16 @@ export const getAllUsersService = async (query: { search: string, page: number, 
             .select(selectedFields)
             .exec();
 
-        return { users, hasMore };
+        return {
+            users,
+            meta: {
+                totalRecords,
+                totalPages,
+                currentPage: page,
+                limit,
+                hasMore,
+            }
+        };
     } catch (err) {
         console.log('err', err)
         return err;
