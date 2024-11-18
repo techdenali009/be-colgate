@@ -32,6 +32,7 @@ export const getAllUsersService = async (query: { search: string, page: number, 
 
         const selectedFields = `email userType lastName firstName status address`
         const users = await User.find(searchFilter)
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
             .select(selectedFields)
@@ -114,6 +115,16 @@ export const updateUserService = async (id: string, data: any) => {
 export const loginService = async (email: string) => {
     try {
         return await User.findOne({ email })
+    } catch (err) {
+        return err;
+    }
+}
+
+
+export const getUserByIdService = async (id: string) => {
+    try {
+        const selectedFields = `email userType lastName firstName status address`
+        return await User.findOne({ _id: id }, selectedFields)
     } catch (err) {
         return err;
     }
