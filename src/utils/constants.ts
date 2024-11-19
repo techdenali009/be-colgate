@@ -16,5 +16,15 @@ export const Messages = {
     Not_Authorized_No_Token: "Not authorized, no token",
     Invalid_Token: "Invalid token.",
     Token_Expired:"Token expired. Please log in again.",
-    Token_Expired_Error: "TokenExpiredError"
+    Token_Expired_Error: "TokenExpiredError",
+    Email_Verified : "Email verified successfully!",
+    Invalid_Email_Verification_Token : "Token is invalid or has expired."
 }
+
+export const EmailSubjects = {
+    Welcome : "Welcome to techdenali",
+    ChangePassword: "Change Password",
+    ForgotPassword: "ForgotPassword",
+    Default :  "From Techdenali"
+}
+

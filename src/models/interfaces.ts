@@ -19,13 +19,17 @@ export interface IUser extends IBasicFields {
     password: string;
     userType: UserType,
     profilePic: string,
+    isVerified: Boolean,
+    verificationToken: string | null, // Invalidate the token
+    tokenCreatedAt: Date,
+    hashedToken: string | null
     address?: {
         street: string,
         city: string,
         state: string,
         zipCode: string,
         country: string,
-        phone:number
+        phone: number
     }
 }
 
