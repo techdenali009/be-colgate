@@ -17,6 +17,26 @@ export const Messages = {
     Invalid_Token: "Invalid token.",
     Token_Expired:"Token expired. Please log in again.",
     Token_Expired_Error: "TokenExpiredError",
+    Get_SubCategory_Not_Found :"No subcategories found for this category",
+    Category_Not_Found:"Category not found",
+    SubCategory_Not_Found:"Subcategory not found",
+    Unexpected_Error:"An unexpected error occurred",
+    Invalid_Category_ID:"Invalid Category ID",
+    Failed_To_Add_SubCategories:"Failed to add subcategories",
+    Name_And_Description_Required:"Name and description are required",
+    SubCategory_Updated: 'Subcategory updated successfully',
+    SubCategory_Deleted: 'Subcategory deleted successfully',
+    SubCategories_Added: 'Subcategories added successfully',
+    Error_Fetching_Categories:'Error fetching categories',
+    Error_Fetching_Categories_ID:'Error fetching category by ID',
+    Error_Fetching_Products_By_Categories:'Error fetching products by category',
+    Error_Updating_Category:"Error updating category",
+    Error_deleting_Category:"Error deleting category",
+    No_Products_Found_For_This_Category:"No products found for this category",
+    Category_Deleted_Successfully:"Category deleted successfully",
+    Product_Not_Found:"Product not found",
+    Product_Deleted:"Product deleted",
+    Product_Created:"Product created",
     Email_Verified : "Email verified successfully!",
     Invalid_Email_Verification_Token : "Token is invalid or has expired."
 }
@@ -27,4 +47,3 @@ export const EmailSubjects = {
     ForgotPassword: "ForgotPassword",
     Default :  "From Techdenali"
 }
-

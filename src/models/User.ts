@@ -86,15 +86,12 @@ const userSchema = new Schema<IUser>({
   timestamps: true,
 });
 
-
-
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next(); // Skip if password is not modified
   const saltRounds = +`${process.env.PASSWORD_SALT}`;
   this.password = await bcrypt.hash(this.password, saltRounds);
   next();
 });
-
 
 userSchema.pre(['findOneAndUpdate', 'updateOne'], async function (next) {
   const update = this.getUpdate() as any;
@@ -107,7 +104,5 @@ userSchema.pre(['findOneAndUpdate', 'updateOne'], async function (next) {
   this.set({ updatedAt: new Date() });
   next();
 });
-
-
 
 export default model<IUser>('User', userSchema);

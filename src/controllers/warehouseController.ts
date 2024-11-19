@@ -1,0 +1,138 @@
+// controllers/warehouseController.ts
+import { Request, Response } from 'express';
+import { validationResult } from 'express-validator';
+import * as warehouseService from '../services/warehouseService';
+
+export const createWarehouse = async (req: Request, res: Response): Promise<void> => {
+  console.log("Route accessed");
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+  try {
+    const data = req.body;
+    console.log('Received data:', data); // Log the received data to check if it's an array or object
+
+    // Call the service function to create warehouse(s)
+    const result = await warehouseService.createWarehouse(data);
+    res.status(201).json(result);
+  } catch (error) {
+    console.error('Error creating warehouse:', error);
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+
+export const getAllWarehouses = async (req: Request, res: Response): Promise<void> => {
+  const { name, status, location, isActive, product_id } = req.query;
+  // Build filter object based on query params
+  const filter: any = {};
+  if (name) {
+    filter.name = { $regex: name, $options: 'i' }; // Case-insensitive search
+    console.log('filter', filter, filter.name)
+  }
+  if (status) {
+    filter.status = status;
+  }
+  if (isActive) {
+    filter.isActive = isActive === 'true'; // Convert 'true' or 'false' string to boolean
+  }
+  if (location) {
+    // Filter by location fields (street, city, state, zipcode, country)
+    const locationFilter: any = {};
+    const locationFields = ['street', 'city', 'state', 'zipcode', 'country'];
+    locationFields.forEach((field) => {
+      if (req.query[field]) {
+        locationFilter[field] = { $regex: req.query[field], $options: 'i' }; // Case-insensitive
+      }
+    });
+    if (Object.keys(locationFilter).length > 0) {
+      filter.location = locationFilter;
+    }
+  }
+
+  
+  if (product_id) {
+    filter['products.product_id'] = product_id; // Filter by product_id within products array
+  }
+  try {
+    const warehouses = await warehouseService.getWarehousesByFilter(filter);
+    res.status(200).json(warehouses);
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export const getWarehouseById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const warehouse = await warehouseService.getWarehouseById(req.params.id);
+    if (!warehouse) {
+      res.status(404).json({ message: 'Warehouse not found' });
+      return;
+    }
+    res.status(200).json(warehouse);
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export const updateWarehouse = async (req: Request, res: Response): Promise<void> => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const updateData = req.body;
+  const productId = req.query.product_id as string;
+
+  try {
+    const warehouse = await warehouseService.updateWarehouse(req.params.id, updateData, productId);
+
+    if (!warehouse) {
+      res.status(404).json({ message: 'Warehouse not found' });
+      return;
+    }
+
+    res.status(200).json(warehouse);
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export const deleteWarehouseProduct = async (req: Request, res: Response): Promise<void> => {
+  const { warehouseId, productId } = req.params;
+
+  try {
+    // Check if the warehouse exists and the product is removed successfully
+    const updatedWarehouse = await warehouseService.deleteProductFromWarehouse(warehouseId, productId);
+
+    if (!updatedWarehouse) {
+      res.status(404).json({ message: 'Warehouse or product not found' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Product deleted from warehouse successfully', updatedWarehouse });
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};
+
+export const deleteWarehouse = async (req: Request, res: Response): Promise<void> => {
+  const warehouseId = req.params.id;
+  try {
+    // Delete the warehouse by its ID
+    const deletedWarehouse = await warehouseService.deleteWarehouseById(warehouseId);
+
+    if (!deletedWarehouse) {
+      res.status(404).json({ message: 'Warehouse not found' });
+      return;
+    }
+
+    res.status(204).json({ message: 'Warehouse deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: (error as Error).message });
+  }
+};

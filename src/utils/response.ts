@@ -26,4 +26,3 @@ export const errorResponse = (res: Response, message = Messages.Internal_Server_
         error,
     });
 };
-
