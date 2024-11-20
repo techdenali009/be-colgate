@@ -37,4 +37,16 @@ export const Messages = {
     Product_Not_Found:"Product not found",
     Product_Deleted:"Product deleted",
     Product_Created:"Product created",
+    Email_Verified : "Email verified successfully!",
+    Invalid_Email_Verification_Token : "Token is invalid or has expired.",
+    Logout : "Logged out successfully",
+    Password_Updated:'Password updated successfully!',
+    CurrentPassword_NotCorrect:'Current Password not correct!'
+}
+
+export const EmailSubjects = {
+    Welcome : "Welcome to techdenali",
+    ChangePassword: "Change Password",
+    ForgotPassword: "ForgotPassword",
+    Default :  "From Techdenali"
 }

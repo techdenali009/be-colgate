@@ -9,7 +9,7 @@ import { auth } from '../middlewares/authMiddleware';
 const router = Router();
 
 // Define user Routes
-router.use('/users', auth as any, userRoutes);
+router.use('/users', userRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/products', productRoutes); 
 router.use('/warehouse',WarehouseRoutes)

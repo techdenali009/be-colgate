@@ -1,8 +1,11 @@
 import { ObjectId } from 'mongoose';
 import { IUser } from '../models/interfaces';
 import User from '../models/User';
-import { Messages } from '../utils/constants';
-import { buildPaginationQuery } from '../utils/appFunctions';
+import { EmailSubjects, Messages } from '../utils/constants';
+import { buildPaginationQuery, generateEmailVerificationToken, hashToken } from '../utils/appFunctions';
+import { sendEmail } from '../emailmodule/email';
+import { registerTemplate } from '../emailmodule/views/email-templates/registerEmail';
+import { registrationEmail } from './emailService';
 
 export const getAllUsersService = async (query: { search: string, page: number, limit: number, userType: string, status: string }) => {
     try {
@@ -66,10 +69,18 @@ export const createUserService = async (body: IUser): Promise<IUser | any> => {
         }
         const newUser = new User(body);
         const savedUser = await newUser.save();
-
+        savedUser.verificationToken = generateEmailVerificationToken();
+        savedUser.hashedToken = hashToken(savedUser.verificationToken!, body.email)
+        savedUser.isVerified = false;
         savedUser.createdBy = savedUser._id as ObjectId;
         savedUser.updatedBy = savedUser._id as ObjectId;
         await savedUser.save();
+        await registrationEmail({
+            email: body.email,
+            firstName: body.firstName,
+            lastName: body.lastName,
+            token: savedUser.verificationToken || ''
+        })
         return savedUser;
     } catch (err) {
         return err;
@@ -114,7 +125,8 @@ export const updateUserService = async (id: string, data: any) => {
 
 export const loginService = async (email: string) => {
     try {
-        return await User.findOne({ email })
+        const selectedFields = `email userType lastName firstName status address isVerified password`
+        return await User.findOne({ email }, selectedFields).exec()
     } catch (err) {
         return err;
     }
@@ -123,9 +135,36 @@ export const loginService = async (email: string) => {
 
 export const getUserByIdService = async (id: string) => {
     try {
-        const selectedFields = `email userType lastName firstName status address`
+        const selectedFields = `email userType lastName firstName status address isVerified`
         return await User.findOne({ _id: id }, selectedFields)
     } catch (err) {
+        return err;
+    }
+}
+
+export const findUserByTokenService = async (token: string) => {
+    try {
+        const user = await User.findOne({
+            verificationToken: token,
+        });
+        if (user) {
+            const hashToke = hashToken(token, user?.email);
+            if (hashToke === user.hashedToken) {
+                user.verificationToken = null;
+                user.isVerified = true;
+                user.hashedToken = null;
+                return await user.save();
+            }
+            return {
+                message: Messages.Invalid_Email_Verification_Token
+            }
+        }
+        return {
+            message: Messages.Invalid_Email_Verification_Token
+        }
+
+    } catch (err) {
+        console.log('error', err)
         return err;
     }
 }

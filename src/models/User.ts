@@ -59,6 +59,22 @@ const userSchema = new Schema<IUser>({
     type: addressSchema,
     required: false
   },
+  isVerified: {
+    type: Boolean,
+    required: false,
+  },
+  tokenCreatedAt: {
+    type: Date,
+    default: Date.now
+  },
+  verificationToken: {
+    type: String,
+    required: false
+  },
+  hashedToken: {
+    type: String,
+    required: false
+  },
   status: { type: String, enum: Status, default: 'active' },
   version: { type: Number, default: 1 },
   createdAt: { type: Date, default: Date.now },

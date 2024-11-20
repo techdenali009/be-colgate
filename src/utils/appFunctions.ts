@@ -1,4 +1,16 @@
 
+const crypto = require('crypto');
+
+
+export const generateEmailVerificationToken = () => {
+    return crypto.randomBytes(32).toString('hex');
+}
+
+export const hashToken = (token: string, userEmail: string) => {
+    const tokenHash = crypto.createHash('sha256').update(token + userEmail).digest('hex');
+    return tokenHash;
+}
+
 export const buildPaginationQuery = (query: any): {
     skip: number,
     limit: number,
@@ -20,5 +32,4 @@ export const buildPaginationQuery = (query: any): {
             page: 1
         }
     }
-
 }

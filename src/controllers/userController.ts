@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import { getAllUsersService, createUserService, deleteUserService, updateUserService, getUserByIdService } from '../services/userService';
+import { getAllUsersService, createUserService, deleteUserService, updateUserService, getUserByIdService, findUserByTokenService } from '../services/userService';
 import { IUser } from '../models/interfaces';
 import { failResponse, successResponse } from '../utils/response';
 import { StatusCode } from '../utils/StatusCodes';
 import { Messages } from '../utils/constants';
+
 
 export interface UserQuery { search: string, page: number, limit: number, userType: string }
 
@@ -79,3 +80,21 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
   }
 }
 
+
+// Verify Email
+export const verifyEmail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const token: string = (req.query.token! || '') as string;
+    console.log('token', token, req.params)
+    const user: any = await findUserByTokenService(token);
+    console.log('user', user)
+    if (user?.message) {
+      failResponse(res, user?.message, StatusCode.Bad_Request);
+      return
+    }
+    successResponse(res, '', Messages.Email_Verified, StatusCode.OK);
+  } catch (err: any) {
+    console.log('err', err)
+    failResponse(res, err?.message || err, StatusCode.Bad_Request)
+  }
+}
