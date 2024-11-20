@@ -1,0 +1,1 @@
+<!--     "postbuild": "xcopy /E /I /H /Y src\\emailmodule\\views\\layouts dist\\emailmodule\\views\\layouts && xcopy /E /I /H /Y src\\emailmodule\\views\\partials dist\\emailmodule\\views\\partials", -->
