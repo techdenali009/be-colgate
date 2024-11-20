@@ -38,7 +38,10 @@ export const Messages = {
     Product_Deleted:"Product deleted",
     Product_Created:"Product created",
     Email_Verified : "Email verified successfully!",
-    Invalid_Email_Verification_Token : "Token is invalid or has expired."
+    Invalid_Email_Verification_Token : "Token is invalid or has expired.",
+    Logout : "Logged out successfully",
+    Password_Updated:'Password updated successfully!',
+    CurrentPassword_NotCorrect:'Current Password not correct!'
 }
 
 export const EmailSubjects = {

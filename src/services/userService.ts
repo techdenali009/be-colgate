@@ -125,7 +125,7 @@ export const updateUserService = async (id: string, data: any) => {
 
 export const loginService = async (email: string) => {
     try {
-        const selectedFields = `email userType lastName firstName status address isVerified`
+        const selectedFields = `email userType lastName firstName status address isVerified password`
         return await User.findOne({ email }, selectedFields).exec()
     } catch (err) {
         return err;
