@@ -54,4 +54,8 @@ export const deleteSubcategory = async (categoryId: string, subcategoryId: strin
     } catch (error) {
         throw new Error((error as Error).message);
     }
+}
+
+export const getAllSubcategoryService = async () => {
+    return await Subcategory.find().exec()
 };

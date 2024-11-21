@@ -5,6 +5,7 @@ import categoryRoutes from './categoryRoutes';
 import productRoutes from './productRoutes';
 import WarehouseRoutes from './warehouseRoutes';
 import { auth } from '../middlewares/authMiddleware';
+import subCategoryRoutes  from './subCategoryRoutes'
 
 const router = Router();
 
@@ -13,6 +14,7 @@ router.use('/users', userRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/products', productRoutes); 
 router.use('/warehouse',WarehouseRoutes)
+router.use('/subcategories', subCategoryRoutes)
 router.use('/', authRoutes);
 
 export default router; 

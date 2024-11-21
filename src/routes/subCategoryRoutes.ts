@@ -1,8 +1,10 @@
 import express from 'express';
-import { addSubcategories, editSubcategory, removeSubcategory } from '../controllers/subCategoryController';
+import { addSubcategories, editSubcategory, getAllSubcategory, removeSubcategory } from '../controllers/subCategoryController';
 
 const router = express.Router();
 
+
+router.get('/', getAllSubcategory)
 // Add multiple subcategories to a category
 router.post('/:categoryId/subcategories', addSubcategories);
 // Update a subcategory

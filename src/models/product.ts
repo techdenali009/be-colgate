@@ -1,4 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import { IBasicFields, Status } from './interfaces';
+import { ProductTypes, RegimenInfromation } from '../utils/constants';
 
 interface Shipping {
   weight: number;
@@ -21,7 +23,7 @@ interface Image {
   altText: string;
 }
 
-export interface ProductDocument extends Document {
+export interface ProductDocument extends IBasicFields {
   name: string;
   description: string;
   category: mongoose.Types.ObjectId;
@@ -32,10 +34,17 @@ export interface ProductDocument extends Document {
   isBestSeller: boolean;
   shipping: Shipping;
   inventoryLocations: InventoryLocation[];
+  dailCare: string[],
+  professionalTreatment: string[],
+  bySkinType: string[],
+  bySkinConcern: string[],
+  howToApply: string,
+  regimenInfromation: string[],
   images: Image[];
   averageRating: number;
-  createdBy: mongoose.Types.ObjectId;
-  updatedBy: mongoose.Types.ObjectId;
+  isPopular: boolean;
+  productType: string
+
 }
 
 const productSchema = new Schema<ProductDocument>({
@@ -70,8 +79,35 @@ const productSchema = new Schema<ProductDocument>({
     },
   ],
   averageRating: { type: Number, default: 0 },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  dailCare: [
+    { type: String }
+  ],
+  professionalTreatment: [{ type: String }],
+  bySkinType: [{ type: String }],
+  bySkinConcern: [{ type: String }],
+  howToApply: {
+    type: String,
+    default: 'After cleansing'
+  },
+  regimenInfromation: [{
+    type: String,
+    default: RegimenInfromation.cleanse
+  }],
+  isPopular: {
+    type: Boolean,
+    default: false
+  },
+  productType: {
+    type: String,
+    default: ProductTypes.sample
+  },
+  status: { type: String, enum: Status, default: 'active' },
+  version: { type: Number, default: 1 },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', },
+  updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', },
+  isActive: { type: Boolean, default: true }
 },
   { timestamps: true });
 

@@ -50,3 +50,16 @@ export const EmailSubjects = {
     ForgotPassword: "ForgotPassword",
     Default :  "From Techdenali"
 }
+
+export const RegimenInfromation = {
+  cleanse:'Cleanse',
+  currect:'Currect',
+  hydrate: 'Hydrate',
+  protect: 'Protect'
+}
+
+export const ProductTypes = {
+    retail : "Retail",
+    backbar: "Backbar",
+    sample: "Sample"
+}
