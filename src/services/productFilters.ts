@@ -5,29 +5,44 @@ import subCategory from '../models/subCategory';
 
 // Function to build the filter object
 export const buildFilter = async (query: any): Promise<FilterQuery<ProductDocument>> => {
-  const { category, name, minPrice, maxPrice, 'skin-type': skinType , 'skin-concern': skinConcern } = query;
+  const { category, name, minPrice, maxPrice, 'skin-type': skinType, 'skin-concern': skinConcern, isPopular } = query;
   const filter: FilterQuery<ProductDocument> = {};
+
+  console.log("category, name, minPrice, maxPrice, 'skin-type': skinType, 'skin-concern': skinConcern, isPopular :::", category, name, minPrice, maxPrice,  skinType, skinConcern, isPopular)
   // Handle filtering by categories
-  if (category) {
-    const categoryNames = Array.isArray(category) ? category : [category];
-    const categoryDocs = await Category.find({ name: { $in: categoryNames } });
-    const categoryIds = categoryDocs.map((cat) => cat._id);
-    filter.category = { $in: categoryIds };
-  }
+  // if (category) {
+  //   // const categoryNames = "Products";
+  //   // const categoryDocs = await Category.find({ name: { $in: categoryNames } });
+  //   // const categoryIds = categoryDocs.map((cat) => cat._id);
+  //   // filter.category = { $in: categoryIds };
+  // }
+ 
+
 
   // Handle filtering by subcategories (for both skin type and skin concern)
   const subcategoryFilters: string[] = [];
   if (skinType) {
     subcategoryFilters.push(skinType);
   }
+
   if (skinConcern) {
     subcategoryFilters.push(skinConcern);
   }
+
+  if(category){
+    if(Array.isArray(category)){
+      subcategoryFilters.push(...category)
+    }else {
+      subcategoryFilters.push(category)
+    }
+  }
+ 
   if (subcategoryFilters.length > 0) {
     const subcategoryDocs = await subCategory.find({ name: { $in: subcategoryFilters } });
     const subcategoryIds = subcategoryDocs.map((sub) => sub._id);
     filter.subCategories = { $in: subcategoryIds };
   }
+
   // Search by product name using regex (case-insensitive)
   if (name) {
     filter.name = { $regex: name, $options: 'i' };
@@ -38,6 +53,12 @@ export const buildFilter = async (query: any): Promise<FilterQuery<ProductDocume
     if (minPrice) filter.price.$gte = parseFloat(minPrice as string);
     if (maxPrice) filter.price.$lte = parseFloat(maxPrice as string);
   }
+
+  // Is Popular 
+  if(isPopular){
+    filter.isPopular = (isPopular == "true");
+  }
+  console.log('filter', filter)
   return filter;
 };
 
@@ -123,6 +144,14 @@ export const buildProductAggregationPipeline = async (
           },
         },
         images: 1,
+        dailCare: 1,
+        professionalTreatment: 1,
+        bySkinType: 1,
+        bySkinConcern: 1,
+        howToApply: 1,
+        regimenInfromation: 1,
+        isPopular: 1,
+        productType: 1
       },
     },
 
