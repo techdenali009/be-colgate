@@ -57,7 +57,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
       failResponse(res, Messages.No_Products_Found_For_This_Category, StatusCode.Not_Found);
       return; 
     }
-    successResponse(res, product);
+    successResponse(res, {product});
     return; 
   } catch (error) {
     errorResponse(res, (error as Error).message);
