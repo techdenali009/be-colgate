@@ -41,7 +41,11 @@ export const Messages = {
     Invalid_Email_Verification_Token: "Token is invalid or has expired.",
     Logout: "Logged out successfully",
     Password_Updated: 'Password updated successfully!',
-    CurrentPassword_NotCorrect: 'Current Password not correct!'
+    CurrentPassword_NotCorrect: 'Current Password not correct!',
+    UserId_And_ProductId_Not_Fount: "userId and itemId are required",
+    Product_Added_To_Faviorite: "Product added to favorites",
+    Invalid_Action_Faviorite: `Invalid action. Use "add" or "remove"`,
+    Product_Removed_To_Faviorite: 'Product removed from favorites'
 }
 
 export const EmailSubjects = {
