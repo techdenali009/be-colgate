@@ -135,7 +135,7 @@ export const loginService = async (email: string) => {
 
 export const getUserByIdService = async (id: string) => {
     try {
-        const selectedFields = `email userType lastName firstName status address isVerified`
+        const selectedFields = `email userType lastName firstName status address isVerified favoriteProducts`
         return await User.findOne({ _id: id }, selectedFields)
     } catch (err) {
         return err;
@@ -167,4 +167,34 @@ export const findUserByTokenService = async (token: string) => {
         console.log('error', err)
         return err;
     }
+}
+
+export const addToFavoriteService = async (productId: string, userId: string, action: string) => {
+    try {
+        const update =
+            action === 'add'
+                ? { $addToSet: { favoriteProducts: productId } } // Add to favorites
+                : { $pull: { favoriteProducts: productId } };
+        return await User.findByIdAndUpdate(userId, update, { new: true }).exec();
+    } catch (err) {
+        return err;
+    }
+
+}
+export const getMyFavoritesService = async (userId: string) => {
+    try {
+
+        return await User.findById(userId, 'favoriteProducts').populate(
+            {
+                path: 'favoriteProducts',
+                populate: [
+                    { path: 'category', model: 'Category', select: 'name _id description' },
+                    { path: 'subCategories', model: 'Subcategory', select: 'name _id description' },
+                ],
+            }
+        ).exec();;
+    } catch (err) {
+        return err;
+    }
+
 }
