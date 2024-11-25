@@ -22,7 +22,8 @@ export interface IUser extends IBasicFields {
     isVerified: Boolean,
     verificationToken: string | null, // Invalidate the token
     tokenCreatedAt: Date,
-    hashedToken: string | null
+    hashedToken: string | null,
+    favoriteProducts:string[],
     address?: {
         street: string,
         city: string,

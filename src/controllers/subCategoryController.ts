@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { addSubcategoriesToCategory, updateSubcategory, deleteSubcategory } from '../services/subCategoryService';
+import { addSubcategoriesToCategory, updateSubcategory, deleteSubcategory, getAllSubcategoryService } from '../services/subCategoryService';
 import { failResponse, successResponse, errorResponse } from '../utils/response';
 import { StatusCode } from '../utils/StatusCodes';
 import { Messages } from '../utils/constants';
@@ -49,6 +49,16 @@ export const removeSubcategory = async (req: Request, res: Response): Promise<vo
         const updatedCategory = await deleteSubcategory(categoryId, subcategoryId);
         successResponse(res, updatedCategory, Messages.SubCategory_Deleted, StatusCode.OK);
     } catch (error) {
+        errorResponse(res, (error as Error).message);
+    }
+};
+
+export const getAllSubcategory = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const data = await getAllSubcategoryService()
+        successResponse(res, data, Messages.SubCategory_Deleted, StatusCode.OK);
+    } catch (error) {
+        console.log('error', error)
         errorResponse(res, (error as Error).message);
     }
 };

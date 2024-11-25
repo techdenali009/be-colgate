@@ -75,6 +75,8 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: false
   },
+  favoriteProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+
   status: { type: String, enum: Status, default: 'active' },
   version: { type: Number, default: 1 },
   createdAt: { type: Date, default: Date.now },

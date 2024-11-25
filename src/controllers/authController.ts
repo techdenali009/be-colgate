@@ -40,6 +40,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     }
 }
 
+
 export const changePassword = async (req: Request, res: Response): Promise<void> => {
     try {
         const errors = validationResult(req);

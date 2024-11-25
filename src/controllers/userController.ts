@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAllUsersService, createUserService, deleteUserService, updateUserService, getUserByIdService, findUserByTokenService } from '../services/userService';
+import { getAllUsersService, createUserService, deleteUserService, updateUserService, getUserByIdService, findUserByTokenService, addToFavoriteService, getMyFavoritesService } from '../services/userService';
 import { IUser } from '../models/interfaces';
 import { failResponse, successResponse } from '../utils/response';
 import { StatusCode } from '../utils/StatusCodes';
@@ -97,4 +97,44 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
     console.log('err', err)
     failResponse(res, err?.message || err, StatusCode.Bad_Request)
   }
+}
+
+// favoriteProducts
+export const addProductToFavorite = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId, productId, action } = req.body;
+
+    if (!userId || !productId || !action) {
+      failResponse(res, Messages.UserId_And_ProductId_Not_Fount, StatusCode.Bad_Request)
+      return;
+    }
+    if (!['add', 'remove'].includes(action)) {
+      failResponse(res, Messages.Invalid_Action_Faviorite, StatusCode.Bad_Request);
+      return
+    }
+    const user = await addToFavoriteService(productId, userId, action);
+    if (!user) {
+      failResponse(res, Messages.User_Not_Available, StatusCode.Bad_Request)
+      return
+    }
+    const message =
+      action === 'add'
+        ? Messages.Product_Added_To_Faviorite
+        : Messages.Product_Removed_To_Faviorite;
+    successResponse(res, '', message, StatusCode.OK);
+  } catch (err: any) {
+    console.log('err', err);
+    failResponse(res, err?.message || err, StatusCode.Bad_Request)
+  }
+}
+
+export const getMyFavoriteProducts = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.params.userId;
+    const myFavorites = await getMyFavoritesService(userId);
+    successResponse(res, { myFavorites }, '', StatusCode.OK);
+  } catch (err: any) {
+    failResponse(res, err?.message || err, StatusCode.Bad_Request)
+  }
+
 }
