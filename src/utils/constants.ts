@@ -45,7 +45,11 @@ export const Messages = {
     UserId_And_ProductId_Not_Fount: "userId and itemId are required",
     Product_Added_To_Faviorite: "Product added to favorites",
     Invalid_Action_Faviorite: `Invalid action. Use "add" or "remove"`,
-    Product_Removed_To_Faviorite: 'Product removed from favorites'
+    Product_Removed_To_Faviorite: 'Product removed from favorites',
+    OrderCreated: 'Order Created successfully!',
+    OrderCreating_Error: 'Order Processing failed!',
+    OrderUpdated: 'Order Updated successfully!',
+    Order_Total_Mismatch : "Total amount mismatch"
 }
 
 export const EmailSubjects = {
@@ -66,4 +70,17 @@ export const ProductTypes = {
     retail: "Retail",
     backbar: "Backbar",
     sample: "Sample"
+}
+
+
+export const PaymentMethod = {
+    Credit_Card: 'Credit Card',
+    PayPal: 'PayPal',
+    COD: 'COD'
+}
+
+export const PaymentStatus = {
+    Pending: 'Pending',
+    Paid: 'Paid',
+    Failed: 'Failed'
 }

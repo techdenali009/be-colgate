@@ -24,11 +24,19 @@ export const buildFilter = async (query: any): Promise<FilterQuery<ProductDocume
     // Handle filtering by subcategories (for both skin type and skin concern)
     const subcategoryFilters: string[] = [];
     if (skinType) {
-      subcategoryFilters.push(skinType);
+      if (Array.isArray(skinType)) {
+        subcategoryFilters.push(...skinType)
+      } else {
+        subcategoryFilters.push(skinType)
+      }
     }
 
     if (skinConcern) {
-      subcategoryFilters.push(skinConcern);
+      if (Array.isArray(skinConcern)) {
+        subcategoryFilters.push(...skinConcern)
+      } else {
+        subcategoryFilters.push(skinConcern)
+      }
     }
 
     if (category) {
@@ -47,7 +55,7 @@ export const buildFilter = async (query: any): Promise<FilterQuery<ProductDocume
 
     // Search by product name using regex (case-insensitive)
     if (name) {
-      let queryName =name.replace(/%(?![0-9A-Fa-f]{2})/g, '%25')
+      let queryName = name.replace(/%(?![0-9A-Fa-f]{2})/g, '%25')
       queryName = decodeURIComponent(queryName);
       filter.name = { $regex: queryName, $options: 'i' };
     }

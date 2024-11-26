@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation - {{companyName}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .order-container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 30px;
+        }
+
+        .order-header {
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+        }
+
+        .order-details {
+            margin: 20px 0;
+        }
+
+        .order-items {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .order-items th,
+        .order-items td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .order-summary {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .shipping-info {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .order-total {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="order-container">
+        <div class="order-header">
+            <h1>Order Confirmation</h1>
+            <p>Thank you for your purchase from {{companyName}}</p>
+        </div>
+
+        <div class="order-details">
+            <h2>Order Details</h2>
+            <p><strong>Order Number:</strong> {{order.orderNumber}}</p>
+            <p><strong>Order Date:</strong> {{order.orderDate}}</p>
+
+            <table class="order-items">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{
+                    #each
+                    order.items}}
+                    <tr>
+                        <td>{{this.name}}</td>
+                        <td>{{this.quantity}}</td>
+                        <td>${{this.unitPrice.toFixed(2)}}</td>
+                        <td>${{this.total.toFixed(2)}}</td>
+                    </tr>
+                    {{
+                    /each
+                    }}
+                </tbody>
+            </table>
+
+            <div class="order-summary">
+                <p>Subtotal: ${{order.subtotal.toFixed(2)}}</p>
+                {{
+                #if
+                order.discountAmount}}
+                <p>Discount: -${{order.discountAmount.toFixed(2)}}</p>
+                {{
+                /if
+                }}
+                <p>Shipping: ${{order.shippingCost.toFixed(2)}}</p>
+                <p>Tax: ${{order.tax.toFixed(2)}}</p>
+                <p class="order-total">Total: ${{order.total.toFixed(2)}}</p>
+            </div>
+        </div>
+
+        <div class="shipping-info">
+            <h2>Shipping Information</h2>
+            <p><strong>Shipping Method:</strong> {{order.shippingMethod}}</p>
+            <p><strong>Estimated Delivery:</strong> {{order.estimatedDelivery}}</p>
+            <p><strong>Shipping Address:</strong><br>
+                {{order.shippingAddress.name}}<br>
+                {{order.shippingAddress.street}}<br>
+                {{order.shippingAddress.city}}, {{order.shippingAddress.state}} {{order.shippingAddress.zipCode}}<br>
+                {{order.shippingAddress.country}}
+            </p>
+        </div>
+
+        {{
+        #if
+        order.specialInstructions}}
+        <div class="special-instructions">
+            <h2>Special Instructions</h2>
+            <p>{{order.specialInstructions}}</p>
+        </div>
+        {{
+        /if
+        }}
+
+        <div class="customer-support">
+            <p>Questions about your order? Contact our customer support:</p>
+            <p>Email: {{supportEmail}}</p>
+            <p>Phone: {{supportPhone}}</p>
+        </div>
+    </div>
+</body>
+
+</html>
