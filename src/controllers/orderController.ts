@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { failResponse, successResponse, errorResponse } from '../utils/response';
 import { StatusCode } from '../utils/StatusCodes';
-import { Messages } from '../utils/constants';
+import { allowedOrderStatus, Messages, orderAllowedUpdates, validOrderSequence } from '../utils/constants';
 import { validationResult } from 'express-validator';
-import { createOrderService, GetAllOrders } from '../services/orderSerivice';
+import { createOrderService, getAllOrdersService, getOrdersByIdService, updateOrderByIdService } from '../services/orderSerivice';
 import mongoose from 'mongoose';
+import { IOrder, OrderStatus } from '../models/interfaces';
 
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -21,73 +22,106 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         }
 
         const orderCreated = await createOrderService(req?.body);
-        successResponse(res, orderCreated, Messages.OrderCreated, StatusCode.OK);
+        successResponse(res, { orderId: orderCreated._id }, Messages.OrderCreated, StatusCode.OK);
     } catch (error) {
         console.log('Error', error)
         errorResponse(res, (error as Error).message || Messages.OrderCreating_Error, StatusCode.Bad_Request);
     }
 };
 
-export const getOrdersById = async (req: Request, res: Response): Promise<void> => {
+export const getOrdersByUserId = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const allOrders = await getAllOrdersService(req?.query, req?.params);
+        successResponse(res, allOrders, '', StatusCode.OK);
+    } catch (err) {
+        errorResponse(res, (err as Error).message, StatusCode.Bad_Request);
+    }
     const { userId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         failResponse(res, Messages.User_Not_Available, StatusCode.Bad_Request);
         return;
     }
-
-    // 
 }
 
-export const getAllorders = async (req: Request, res: Response): Promise<void> => {
-    // const { userId } = req.params;
-    // if (!mongoose.Types.ObjectId.isValid(userId)) {
-    //     failResponse(res, Messages.User_Not_Available, StatusCode.Bad_Request);
-    //     return;
-    // }
-    const allOrders = await GetAllOrders()
-    successResponse(res, allOrders,'', StatusCode.OK);
-    // 
+export const getAllOrders = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const allOrders = await getAllOrdersService(req.query);
+        successResponse(res, allOrders, '', StatusCode.OK);
+    } catch (err) {
+        errorResponse(res, (err as Error).message, StatusCode.Bad_Request);
+    }
 }
-// GetAllOrders
-// export const editSubcategory = async (req: Request, res: Response): Promise<void> => {
-//     const { subcategoryId } = req.params;
-//     const { name, description } = req.body;
-//     if (!mongoose.Types.ObjectId.isValid(subcategoryId)) {
-//         failResponse(res, Messages.Invalid_Category_ID, StatusCode.Bad_Request);
-//         return;
-//     }
-//     if (!name || !description) {
-//         failResponse(res, Messages.Name_And_Description_Required, StatusCode.Bad_Request);
-//         return;
-//     }
-//     try {
-//         const updatedSubcategory = await updateSubcategory(subcategoryId, { name, description });
-//         successResponse(res, updatedSubcategory, Messages.SubCategory_Updated, StatusCode.OK);
-//     } catch (error) {
-//         errorResponse(res, (error as Error).message);
-//     }
-// };
 
-// export const removeSubcategory = async (req: Request, res: Response): Promise<void> => {
-//     const { categoryId, subcategoryId } = req.params;
-//     try {
-//         if (!mongoose.Types.ObjectId.isValid(categoryId) || !mongoose.Types.ObjectId.isValid(subcategoryId)) {
-//             failResponse(res, Messages.Invalid_Category_ID, StatusCode.Bad_Request);
-//             return;
-//         }
-//         const updatedCategory = await deleteSubcategory(categoryId, subcategoryId);
-//         successResponse(res, updatedCategory, Messages.SubCategory_Deleted, StatusCode.OK);
-//     } catch (error) {
-//         errorResponse(res, (error as Error).message);
-//     }
-// };
+export const getOrderById = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { orderId } = req.params;
+        const order: any = await getOrdersByIdService(orderId);
+        successResponse(res, { order }, '', StatusCode.OK);
+    } catch (err) {
+        errorResponse(res, (err as Error).message, StatusCode.Bad_Request);
+    }
+}
 
-// export const getAllSubcategory = async (req: Request, res: Response): Promise<void> => {
-//     try {
-//         const data = await getAllSubcategoryService()
-//         successResponse(res, data, Messages.SubCategory_Deleted, StatusCode.OK);
-//     } catch (error) {
-//         console.log('error', error)
-//         errorResponse(res, (error as Error).message);
-//     }
-// };
+export const updateOrderById = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { orderId } = req.params;
+        const updateOrder = req.body;
+
+        const order: any = await getOrdersByIdService(orderId);
+
+        if (!order) {
+            failResponse(res, Messages.Order_Not_Found, StatusCode.Bad_Request);
+            return
+        }
+
+        let newOrder: any = {}
+
+        Object.keys(updateOrder).forEach((key) => {
+            if (orderAllowedUpdates.includes(key)) {
+                newOrder[key as any] = updateOrder[key];
+            }
+        });
+
+        if (newOrder.orderStatus) {
+            if (!allowedOrderStatus.includes(newOrder.orderStatus)) {
+                failResponse(res, Messages.Invalid_Order_Status, StatusCode.Bad_Request);
+                return
+            }
+
+            if (updateOrder.orderStatus === OrderStatus.Delivered && order.orderStatus === OrderStatus.Cancelled) {
+                failResponse(res, Messages.Order_Cannot_Delivered, StatusCode.Bad_Request);
+                return
+            }
+
+            if (updateOrder.orderStatus === OrderStatus.Cancelled && order.orderStatus === OrderStatus.Delivered) {
+                failResponse(res, Messages.Order_Cannot_Cancel, StatusCode.Bad_Request);
+                return
+            }
+
+            const currentStatusIndex = validOrderSequence.indexOf(order.orderStatus);
+            const newStatusIndex = validOrderSequence.indexOf(updateOrder.orderStatus);
+            console.log('currentStatusIndex', currentStatusIndex, newStatusIndex, order.orderStatus, updateOrder.orderStatus, !(newStatusIndex === currentStatusIndex + 1), newStatusIndex <= currentStatusIndex)
+            if ((updateOrder.orderStatus !== OrderStatus.Cancelled) && (newStatusIndex <= currentStatusIndex || !(newStatusIndex === currentStatusIndex + 1))) {
+                console.log('Order Squence Wrong!...');
+                failResponse(res, Messages.Order_Status_Skipped, StatusCode.Bad_Request);
+                return
+            }
+        }
+
+        const updatedOrder = await updateOrderByIdService(orderId, updateOrder)
+        successResponse(res, updateOrder, Messages.OrderUpdated, StatusCode.OK);
+    } catch (err) {
+        errorResponse(res, (err as Error).message, StatusCode.Bad_Request);
+    }
+}
+
+export const deleteOrderById = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { orderId } = req.params;
+        const order: any = await updateOrderByIdService(orderId, { isActive: false } as IOrder);
+        successResponse(res, { orderId }, Messages.Order_Deleted, StatusCode.OK);
+    } catch (err) {
+        errorResponse(res, (err as Error).message, StatusCode.Bad_Request);
+    }
+}
+

@@ -146,8 +146,13 @@ export interface IOrder extends IBasicFields {
     status: string, // 'Pending', 'Paid', 'Failed'
     transactionId: string, // Optional, for tracking payment
   },
+  
+  discount: {
+    couponCode: string //'SAVE20',
+    amount: number
+  }
   orderStatus: OrderStatus,
-  estimatedDelivery:Date
+  estimatedDelivery: Date
   totalAmount: number,
   taxAmount: number,
   shippingCost: number,

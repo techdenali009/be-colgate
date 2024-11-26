@@ -37,6 +37,16 @@ const orderSchema = new mongoose.Schema({
         postalCode: { type: String, required: true },
         country: { type: String, required: true },
     },
+    discount: {
+        couponCode: {
+            type: String,
+            default: 'SAVE0'
+        },
+        amount: {
+            type: Number,
+            default: 0
+        }
+    },
     paymentInfo: {
         method: { type: String, required: true }, // e.g., 'Credit Card', 'PayPal', 'COD'
         status: { type: String, default: PaymentStatus.Pending }, // 'Pending', 'Paid', 'Failed'
@@ -76,6 +86,7 @@ const orderSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', },
+    isActive: { type: Boolean, default: true }
 }, { timestamps: true }); // Adds createdAt and updatedAt fields automatically
 
 export default model<IOrder>('Order', orderSchema);

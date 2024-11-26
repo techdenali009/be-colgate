@@ -1,3 +1,5 @@
+import { OrderStatus } from "../models/interfaces";
+
 export const JWT_TOKEN_NAME = 'Authorization';
 
 export const Messages = {
@@ -49,7 +51,13 @@ export const Messages = {
     OrderCreated: 'Order Created successfully!',
     OrderCreating_Error: 'Order Processing failed!',
     OrderUpdated: 'Order Updated successfully!',
-    Order_Total_Mismatch : "Total amount mismatch"
+    Order_Total_Mismatch: "Total amount mismatch",
+    Order_Not_Found: "Order not found",
+    Invalid_Order_Status: "Invalid order status",
+    Order_Status_Skipped : "Invalid status change. The order cannot move backward or skip steps.",
+    Order_Cannot_Cancel : "Invalid status change. The order cannot cancel, it is alredy delivered.",
+    Order_Cannot_Delivered : "Invalid status change. The order cannot devlivered, it is alredy canceled.",
+    Order_Deleted: "Order Deleted successfully!",
 }
 
 export const EmailSubjects = {
@@ -84,3 +92,23 @@ export const PaymentStatus = {
     Paid: 'Paid',
     Failed: 'Failed'
 }
+
+export const orderAllowedUpdates = [
+    'orderStatus',
+    'shippingAddress',
+    'billingAddress',
+    'paymentStatus',
+    'notes',
+    'estimatedDeliveryDate',
+    'isActive'
+];
+
+export const allowedOrderStatus = Object.values(OrderStatus);
+
+export const validOrderSequence = [
+    OrderStatus.Pending,    // Index 0
+    OrderStatus.Processing, // Index 1
+    OrderStatus.Shipped,    // Index 2
+    OrderStatus.Delivered,  // Index 3
+    OrderStatus.Cancelled   // Index 4
+];
