@@ -181,10 +181,14 @@ export const addToFavoriteService = async (productId: string, userId: string, ac
     }
 
 }
-export const getMyFavoritesService = async (userId: string) => {
+export const getMyFavoritesService = async (query: any, userId: string) => {
     try {
-
-        return await User.findById(userId, 'favoriteProducts').populate(
+        const { skip, limit, page } = buildPaginationQuery(query)
+        const userWithFavorites: any = await User.findById(userId, 'favoriteProducts');
+        const totalRecords = userWithFavorites?.favoriteProducts?.length || 0;
+        const totalPages = Math.ceil(totalRecords / limit);
+        const hasMore = page < totalPages;
+        const myFavorites = await User.findById(userId, 'favoriteProducts').populate(
             {
                 path: 'favoriteProducts',
                 populate: [
@@ -192,7 +196,23 @@ export const getMyFavoritesService = async (userId: string) => {
                     { path: 'subCategories', model: 'Subcategory', select: 'name _id description' },
                 ],
             }
-        ).exec();;
+        )
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .exec();
+
+        return {
+            myFavorites: myFavorites || [],
+            meta: {
+                totalRecords,
+                totalPages,
+                currentPage: page,
+                limit,
+                hasMore,
+            }
+        };
+
     } catch (err) {
         return err;
     }

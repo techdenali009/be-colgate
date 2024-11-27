@@ -131,7 +131,8 @@ export const addProductToFavorite = async (req: Request, res: Response): Promise
 export const getMyFavoriteProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.params.userId;
-    const myFavorites = await getMyFavoritesService(userId);
+    const myFavorites = await getMyFavoritesService(req.query , userId);
+    console.log('myFavorites', myFavorites)
     successResponse(res, { myFavorites }, '', StatusCode.OK);
   } catch (err: any) {
     failResponse(res, err?.message || err, StatusCode.Bad_Request)
