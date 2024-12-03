@@ -11,6 +11,13 @@ export interface IBasicFields extends Document {
   version: number
 }
 
+export interface BasicQueryFields {
+  search?: string,
+  page?: number,
+  limit?: number,
+  userType?: string,
+  status?: string
+}
 // User interface
 export interface IUser extends IBasicFields {
   email: string;
@@ -146,7 +153,7 @@ export interface IOrder extends IBasicFields {
     status: string, // 'Pending', 'Paid', 'Failed'
     transactionId: string, // Optional, for tracking payment
   },
-  
+
   discount: {
     couponCode: string //'SAVE20',
     amount: number

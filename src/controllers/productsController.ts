@@ -55,13 +55,13 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
     const product = await productService.getProductById(req.params.id);
     if (!product) {
       failResponse(res, Messages.No_Products_Found_For_This_Category, StatusCode.Not_Found);
-      return; 
+      return;
     }
-    successResponse(res, {product});
-    return; 
+    successResponse(res, { product });
+    return;
   } catch (error) {
     errorResponse(res, (error as Error).message);
-    return; 
+    return;
   }
 };
 
@@ -70,7 +70,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     failResponse(res, errors.array(), StatusCode.Bad_Request);
-    return; 
+    return;
   }
   try {
     const product = await productService.updateProduct(req.params.id, req.body);
@@ -79,7 +79,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
       return;
     }
     successResponse(res, product, Messages.Product_Created);
-    return; 
+    return;
   } catch (error) {
     errorResponse(res, (error as Error).message);
     return;
@@ -95,10 +95,10 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
       return;
     }
     successResponse(res, null, Messages.Product_Deleted, StatusCode.No_Content);
-    return; 
+    return;
   } catch (error) {
     errorResponse(res, (error as Error).message);
-    return; 
+    return;
   }
 };
 
@@ -112,9 +112,37 @@ export const getProductsByCategory = async (req: Request, res: Response): Promis
       return;
     }
     successResponse(res, products);
-    return; 
+    return;
   } catch (error) {
     errorResponse(res, Messages.Error_Fetching_Products_By_Categories);
-    return; 
+    return;
   }
 };
+
+// Get recently viewed products 
+export const getRecentlyViewedProducts = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {productIds} = req.body;
+    const products = await productService.getRecentlyViewedProductsService(req.query, productIds);
+    successResponse(res, products, 'Recently Viewed Products')
+     return;
+  } catch (err) {
+    errorResponse(res, Messages.Product_Not_Found);
+    return;
+  }
+}
+
+// getReletedProductsProductsService
+
+export const getRelatedProducts = async (req: Request, res: Response): Promise<void> => {
+
+  try {
+    const products = await productService.getRelatedProductsService(req.query as any);
+    successResponse(res, products, 'Related Viewed Products')
+     return;
+  } catch (err) {
+    errorResponse(res, Messages.Product_Not_Found);
+    return;
+  }
+
+}
