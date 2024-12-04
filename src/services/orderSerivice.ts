@@ -11,7 +11,7 @@ const selectedFields = `shippingAddress
 billingAddress paymentInfo userId 
 products orderStatus totalAmount 
 taxAmount shippingCost notes estimatedDelivery 
-createdAt updatedAt discount`;
+createdAt updatedAt discount orderId`;
 
 
 export const createOrderService = async (order: IOrder): Promise<IOrder> => {
@@ -48,7 +48,12 @@ export const createOrderService = async (order: IOrder): Promise<IOrder> => {
         newOrder.createdBy = order.userId as ObjectId;
         newOrder.updatedBy = order.userId as ObjectId;
         const savedOrder = await newOrder.save();
-        return savedOrder;
+        const totalOrders = await Orders.countDocuments();
+        const date = new Date();
+        const year = date.getFullYear();
+        savedOrder.orderId = `ORD${year}${totalOrders + 1}`;
+        const orderObj = await savedOrder.save();
+        return orderObj;
     } catch (error) {
         throw new Error((error as Error).message);
     }
@@ -57,17 +62,18 @@ export const createOrderService = async (order: IOrder): Promise<IOrder> => {
 export const getAllOrdersService = async (query: any, params: any = {}) => {
     try {
         const { skip, limit, page } = buildPaginationQuery(query)
-        const { orderStatus } = query;
+        const { orderStatus, orderId } = query;
         const { userId } = params;
         let searchFilter: any = {
             $and: [
                 { isActive: true },
                 (orderStatus && { orderStatus }),
-                (userId && { userId })
-            ].filter((option) => !!option)
-        };
-       
+                (userId && { userId }),
+                // (orderId && {orderId})
+            ].filter((option) => !!option),
 
+        };
+        console.log('orderId',searchFilter);
         const totalRecords = await Orders.countDocuments(searchFilter);
         const totalPages = Math.ceil(totalRecords / limit);
         const hasMore = page < totalPages;
@@ -77,7 +83,7 @@ export const getAllOrdersService = async (query: any, params: any = {}) => {
             .populate('userId', 'name email firstName lastName address')
             .populate({
                 path: 'products.product',
-                select: 'name price description',
+                select: 'name price description images',
             })
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -104,7 +110,10 @@ export const getAllOrdersService = async (query: any, params: any = {}) => {
 
 export const getOrdersByIdService = async (orderId: string) => {
     try {
-        return await Orders.findById(orderId).select(selectedFields);
+        return await Orders.findById(orderId).select(selectedFields).populate({
+            path: 'products.product',
+            select: 'name price description images',
+        });
     } catch (err) {
         throw new Error((err as Error).message);
     }

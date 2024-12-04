@@ -1,7 +1,6 @@
 import mongoose, { model } from "mongoose";
 import { Status, OrderStatus, IOrder } from "./interfaces";
 import { PaymentMethod, PaymentStatus } from "../utils/constants";
-
 const orderSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -69,16 +68,20 @@ const orderSchema = new mongoose.Schema({
         type: Number, // Additional shipping fee, if any
         default: 0,
     },
-    notes: {
+    notes: [{
         type: String, // Additional notes or instructions for the order
         default: '',
-    },
+    }],
     estimatedDelivery: {
         type: Date,
         default: () => {
             const currentDate = new Date();
             return new Date(currentDate.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 days in milliseconds
         }
+    },
+    orderId: {
+        type: String,
+        default: Date.now
     },
     status: { type: String, enum: Status, default: Status.Active },
     version: { type: Number, default: 1 },
