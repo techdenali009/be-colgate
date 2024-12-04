@@ -69,8 +69,14 @@ const orderSchema = new mongoose.Schema({
         default: 0,
     },
     notes: [{
-        type: String, // Additional notes or instructions for the order
-        default: '',
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }, 
+        message: {
+            type: String,
+            default: ''
+        }
     }],
     estimatedDelivery: {
         type: Date,

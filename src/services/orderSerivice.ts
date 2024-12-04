@@ -69,7 +69,7 @@ export const getAllOrdersService = async (query: any, params: any = {}) => {
                 { isActive: true },
                 (orderStatus && { orderStatus }),
                 (userId && { userId }),
-                // (orderId && {orderId})
+                (orderId &&  { orderId: { $regex: orderId, $options: 'i' } })
             ].filter((option) => !!option),
 
         };
