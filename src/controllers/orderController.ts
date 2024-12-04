@@ -66,7 +66,6 @@ export const updateOrderById = async (req: Request, res: Response): Promise<void
     try {
         const { orderId } = req.params;
         const updateOrder = req.body;
-
         const order: any = await getOrdersByIdService(orderId);
 
         if (!order) {
@@ -82,7 +81,7 @@ export const updateOrderById = async (req: Request, res: Response): Promise<void
             }
         });
 
-        if (newOrder.orderStatus) {
+        if (newOrder?.orderStatus) {
             if (!allowedOrderStatus.includes(newOrder.orderStatus)) {
                 failResponse(res, Messages.Invalid_Order_Status, StatusCode.Bad_Request);
                 return
@@ -107,8 +106,16 @@ export const updateOrderById = async (req: Request, res: Response): Promise<void
                 return
             }
         }
-
-        const updatedOrder = await updateOrderByIdService(orderId, updateOrder)
+        if (newOrder?.comments?.length > 0) {
+            const hasValidNotes = newOrder?.comments?.every(
+                (comment: { userId: string, message: string }) => comment?.userId && comment?.message);
+            if (!hasValidNotes) {
+                failResponse(res, Messages.Order_Comments_Required, StatusCode.Bad_Request);
+                return
+            }
+            newOrder.comments = [...newOrder.comments, ...(order?.comments || [])]
+        }
+        const updatedOrder = await updateOrderByIdService(orderId, newOrder)
         successResponse(res, updateOrder, Messages.OrderUpdated, StatusCode.OK);
     } catch (err) {
         errorResponse(res, (err as Error).message, StatusCode.Bad_Request);

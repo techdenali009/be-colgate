@@ -10,7 +10,7 @@ import { buildPaginationQuery } from '../utils/appFunctions';
 const selectedFields = `shippingAddress 
 billingAddress paymentInfo userId 
 products orderStatus totalAmount 
-taxAmount shippingCost notes estimatedDelivery 
+taxAmount shippingCost comments estimatedDelivery 
 createdAt updatedAt discount orderId`;
 
 
@@ -69,11 +69,11 @@ export const getAllOrdersService = async (query: any, params: any = {}) => {
                 { isActive: true },
                 (orderStatus && { orderStatus }),
                 (userId && { userId }),
-                (orderId &&  { orderId: { $regex: orderId, $options: 'i' } })
+                (orderId && { orderId: { $regex: orderId, $options: 'i' } })
             ].filter((option) => !!option),
 
         };
-        console.log('orderId',searchFilter);
+        console.log('orderId', searchFilter);
         const totalRecords = await Orders.countDocuments(searchFilter);
         const totalPages = Math.ceil(totalRecords / limit);
         const hasMore = page < totalPages;
@@ -84,6 +84,10 @@ export const getAllOrdersService = async (query: any, params: any = {}) => {
             .populate({
                 path: 'products.product',
                 select: 'name price description images',
+            })
+            .populate({
+                path: 'comments.userId',
+                select: 'firstName lastName',
             })
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -110,10 +114,15 @@ export const getAllOrdersService = async (query: any, params: any = {}) => {
 
 export const getOrdersByIdService = async (orderId: string) => {
     try {
-        return await Orders.findById(orderId).select(selectedFields).populate({
-            path: 'products.product',
-            select: 'name price description images',
-        });
+        return await Orders.findById(orderId).select(selectedFields)
+            .populate({
+                path: 'products.product',
+                select: 'name price description images',
+            })
+            .populate({
+                path: 'comments.userId',
+                select: 'firstName lastName',
+            }).exec();
     } catch (err) {
         throw new Error((err as Error).message);
     }

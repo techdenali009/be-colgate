@@ -58,6 +58,7 @@ export const Messages = {
     Order_Cannot_Cancel : "Invalid status change. The order cannot cancel, it is alredy delivered.",
     Order_Cannot_Delivered : "Invalid status change. The order cannot devlivered, it is alredy canceled.",
     Order_Deleted: "Order Deleted successfully!",
+    Order_Comments_Required: "Send Proper Comments, message and userId required"
 }
 
 export const EmailSubjects = {
@@ -98,9 +99,9 @@ export const orderAllowedUpdates = [
     'shippingAddress',
     'billingAddress',
     'paymentStatus',
-    'notes',
     'estimatedDeliveryDate',
-    'isActive'
+    'isActive',
+    'comments'
 ];
 
 export const allowedOrderStatus = Object.values(OrderStatus);

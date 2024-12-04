@@ -68,14 +68,18 @@ const orderSchema = new mongoose.Schema({
         type: Number, // Additional shipping fee, if any
         default: 0,
     },
-    notes: [{
+    comments: [{
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
-        }, 
+        },
         message: {
             type: String,
             default: ''
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now
         }
     }],
     estimatedDelivery: {
