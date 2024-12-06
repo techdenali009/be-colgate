@@ -115,6 +115,16 @@ export const updateOrderById = async (req: Request, res: Response): Promise<void
             }
             newOrder.comments = [...newOrder.comments, ...(order?.comments || [])]
         }
+
+        if (newOrder?.estimatedDelivery) {
+            const parsedDate1 = new Date(newOrder?.estimatedDelivery);
+            const parsedDate2 = new Date(order?.estimatedDelivery);
+            if (parsedDate1 <= parsedDate2 ) {
+                failResponse(res, Messages.Order_Estimate_Date_Error, StatusCode.Bad_Request);
+                return;
+              }
+        }
+
         const updatedOrder = await updateOrderByIdService(orderId, newOrder)
         successResponse(res, updateOrder, Messages.OrderUpdated, StatusCode.OK);
     } catch (err) {

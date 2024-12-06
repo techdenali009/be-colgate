@@ -58,7 +58,8 @@ export const Messages = {
     Order_Cannot_Cancel : "Invalid status change. The order cannot cancel, it is alredy delivered.",
     Order_Cannot_Delivered : "Invalid status change. The order cannot devlivered, it is alredy canceled.",
     Order_Deleted: "Order Deleted successfully!",
-    Order_Comments_Required: "Send Proper Comments, message and userId required"
+    Order_Comments_Required: "Send Proper Comments, message and userId required",
+    Order_Estimate_Date_Error: "Estimated delivery date should be greater than the current estimated delivery date."
 }
 
 export const EmailSubjects = {
@@ -99,7 +100,7 @@ export const orderAllowedUpdates = [
     'shippingAddress',
     'billingAddress',
     'paymentStatus',
-    'estimatedDeliveryDate',
+    'estimatedDelivery',
     'isActive',
     'comments'
 ];
