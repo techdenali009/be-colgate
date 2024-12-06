@@ -54,12 +54,18 @@ export const Messages = {
     Order_Total_Mismatch: "Total amount mismatch",
     Order_Not_Found: "Order not found",
     Invalid_Order_Status: "Invalid order status",
-    Order_Status_Skipped : "Invalid status change. The order cannot move backward or skip steps.",
-    Order_Cannot_Cancel : "Invalid status change. The order cannot cancel, it is alredy delivered.",
-    Order_Cannot_Delivered : "Invalid status change. The order cannot devlivered, it is alredy canceled.",
+    Order_Status_Skipped: "Invalid status change. The order cannot move backward or skip steps.",
+    Order_Cannot_Cancel: "Invalid status change. The order cannot cancel, it is alredy delivered.",
+    Order_Cannot_Delivered: "Invalid status change. The order cannot devlivered, it is alredy canceled.",
     Order_Deleted: "Order Deleted successfully!",
     Order_Comments_Required: "Send Proper Comments, message and userId required",
-    Order_Estimate_Date_Error: "Estimated delivery date should be greater than the current estimated delivery date."
+    Order_Estimate_Date_Error: "Estimated delivery date should be greater than the current estimated delivery date.",
+    UserId_Required_To_Update_Address : "UserId required to update address",
+    AddressId_Required_To_Update_Address : "Address required to update address",
+    UserId_Required_To_Delete_Address : "UserId required to delete address",
+    AddressId_Required_To_Delete_Address : "Address required to delete address",
+    Address_Updated: "Address update successfully",
+    Address_Deleted: "Address deleted successfully"
 }
 
 export const EmailSubjects = {
@@ -103,6 +109,17 @@ export const orderAllowedUpdates = [
     'estimatedDelivery',
     'isActive',
     'comments'
+];
+
+export const UserAddressFields = [
+    "name",
+    "street",
+    "city",
+    "state",
+    "zipCode",
+    "country",
+    "phone",
+    "id"
 ];
 
 export const allowedOrderStatus = Object.values(OrderStatus);

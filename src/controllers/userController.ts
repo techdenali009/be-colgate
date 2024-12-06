@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { getAllUsersService, createUserService, deleteUserService, updateUserService, getUserByIdService, findUserByTokenService, addToFavoriteService, getMyFavoritesService } from '../services/userService';
+import { getAllUsersService, createUserService, deleteUserService, updateUserService, getUserByIdService, findUserByTokenService, addToFavoriteService, getMyFavoritesService, updateUserAddressService, deleteUserAddressService } from '../services/userService';
 import { IUser } from '../models/interfaces';
 import { failResponse, successResponse } from '../utils/response';
 import { StatusCode } from '../utils/StatusCodes';
-import { Messages } from '../utils/constants';
+import { Messages, UserAddressFields } from '../utils/constants';
 
 
 export interface UserQuery { search: string, page: number, limit: number, userType: string }
@@ -57,7 +57,7 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
       failResponse(res, updatedUser?.message, StatusCode.Bad_Request);
       return
     }
-    successResponse(res, req.body, Messages.User_Updated, StatusCode.OK);
+    successResponse(res, updatedUser, Messages.User_Updated, StatusCode.OK);
   } catch (err: any) {
     console.log('err', err)
     failResponse(res, err?.message || err, StatusCode.Bad_Request)
@@ -131,11 +131,58 @@ export const addProductToFavorite = async (req: Request, res: Response): Promise
 export const getMyFavoriteProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.params.userId;
-    const myFavorites = await getMyFavoritesService(req.query , userId);
+    const myFavorites = await getMyFavoritesService(req.query, userId);
     console.log('myFavorites', myFavorites)
     successResponse(res, { myFavorites }, '', StatusCode.OK);
   } catch (err: any) {
     failResponse(res, err?.message || err, StatusCode.Bad_Request)
   }
+}
 
+export const updateUserAddress = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId } = req.params;
+    const newAddress = req.body;
+    if (!userId) {
+      failResponse(res, Messages.UserId_Required_To_Update_Address, StatusCode.Bad_Request)
+      return;
+    }
+    if (!newAddress?.id) {
+      failResponse(res, Messages.AddressId_Required_To_Update_Address, StatusCode.Bad_Request)
+      return;
+    }
+
+    if (newAddress) {
+      Object.keys(newAddress).forEach((key) => {
+        if (!UserAddressFields.includes(key)) {
+          delete newAddress[key];
+        }
+      });
+    }
+
+    const userAddressUpdated = await updateUserAddressService(userId, newAddress);
+    successResponse(res, newAddress, Messages.Address_Updated, StatusCode.OK);
+  } catch (err: any) {
+    failResponse(res, err?.message || err, StatusCode.Bad_Request)
+  }
+}
+
+export const deleteUserAddress = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId } = req.params;
+    const { id } = req.body;
+    if (!userId) {
+      failResponse(res, Messages.UserId_Required_To_Delete_Address, StatusCode.Bad_Request)
+      return;
+    }
+    if (!id) {
+      failResponse(res, Messages.AddressId_Required_To_Update_Address, StatusCode.Bad_Request)
+      return;
+    }
+
+    const userAddressUpdated = await deleteUserAddressService(userId, id);
+    successResponse(res, { id }, Messages.Address_Deleted, StatusCode.OK);
+  } catch (err: any) {
+    failResponse(res, err?.message || err, StatusCode.Bad_Request)
+  }
 }

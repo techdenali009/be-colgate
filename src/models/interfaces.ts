@@ -31,14 +31,14 @@ export interface IUser extends IBasicFields {
   tokenCreatedAt: Date,
   hashedToken: string | null,
   favoriteProducts: string[],
-  address?: {
+  addresses: {
     street: string,
     city: string,
     state: string,
     zipCode: string,
     country: string,
     phone: number
-  }
+  }[]
 }
 
 export enum UserType {

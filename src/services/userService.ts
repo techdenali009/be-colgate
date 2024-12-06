@@ -33,7 +33,7 @@ export const getAllUsersService = async (query: { search: string, page: number, 
         const totalPages = Math.ceil(totalRecords / limit);
         const hasMore = page < totalPages;
 
-        const selectedFields = `email userType lastName firstName status address`
+        const selectedFields = `email userType lastName firstName status addresses`
         const users = await User.find(searchFilter)
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -109,12 +109,24 @@ export const deleteUserService = async (id: string) => {
 
 export const updateUserService = async (id: string, data: any) => {
     try {
+
+        const user = await User.find({ _id: id }) as any;
+        let newAddress = null;
+        let userUpdateObj: any = {
+            $set: data
+        }
+        if (data?.address) {
+            newAddress = data?.address;
+            delete data?.address;
+            userUpdateObj = {
+                ...userUpdateObj,
+                $push: { addresses: newAddress },
+            }
+        }
         const userUpdate = await User.findOneAndUpdate(
             { _id: id },
-            {
-                $set: data
-            },
-            { new: true, runValidators: true }
+            userUpdateObj,
+            { new: true, runValidators: true, upsert: true }
         );
         return userUpdate;
     } catch (err) {
@@ -125,7 +137,7 @@ export const updateUserService = async (id: string, data: any) => {
 
 export const loginService = async (email: string) => {
     try {
-        const selectedFields = `email userType lastName firstName status address isVerified password favoriteProducts`
+        const selectedFields = `email userType lastName firstName status addresses isVerified password favoriteProducts`
         return await User.findOne({ email }, selectedFields).exec()
     } catch (err) {
         return err;
@@ -135,7 +147,7 @@ export const loginService = async (email: string) => {
 
 export const getUserByIdService = async (id: string) => {
     try {
-        const selectedFields = `email userType lastName firstName status address isVerified favoriteProducts`
+        const selectedFields = `email userType lastName firstName status addresses isVerified favoriteProducts`
         return await User.findOne({ _id: id }, selectedFields)
     } catch (err) {
         return err;
@@ -217,4 +229,47 @@ export const getMyFavoritesService = async (query: any, userId: string) => {
         return err;
     }
 
+}
+
+export const updateUserAddressService = async (userId: any, newAddress: any) => {
+    try {
+        // { _id: "123", "addresses.id": "2" }
+        // const userAddress = await User.find(
+        //     { _id:userId, "addresses._id": newAddress?.id}, // Match the user and address _id
+        //     { "addresses.$": 1 } // Use the positional operator to return only the matched address
+        //   )
+
+        const updateFields: any = {};
+        Object.keys(newAddress).forEach((key) => {
+            updateFields[`addresses.$.${key}`] = newAddress[key];
+        });
+        
+        console.log('updateFields', updateFields)
+        const userAddress = await User.updateOne(
+            { _id: userId, "addresses._id": newAddress?.id },
+            {
+                $set: updateFields
+            }
+        )
+        return userAddress;
+    } catch (err) {
+        return err;
+    }
+}
+
+export const deleteUserAddressService = async (userId: string, addressId: string) => {
+    try {
+       
+        const userAddress = await User.updateOne(
+            { _id: userId}, 
+            {
+              $pull: {
+                addresses: { _id: addressId } 
+              }
+            }
+        )
+        return userAddress;
+    } catch (err) {
+        return err;
+    }
 }

@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 
 
 const addressSchema = new mongoose.Schema({
+  name: {type: String, require: true},
   street: { type: String, required: true },
   city: { type: String, required: true },
   state: { type: String, required: true },
@@ -55,10 +56,10 @@ const userSchema = new Schema<IUser>({
     type: String,
     require: false,
   },
-  address: {
+  addresses: [{
     type: addressSchema,
     required: false
-  },
+  }],
   isVerified: {
     type: Boolean,
     required: false,
