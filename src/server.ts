@@ -4,14 +4,16 @@ const http = require('http');
 const connetDataBase = require('./config/db');
 const mongoose = require("mongoose");
 const server = http.createServer(app);
-
+const fs = require('fs');
 // Start server on the specified port
 const PORT = process.env.PORT || 5000;
 
 // Connect Mongodb
 connetDataBase().then((res: any) => {
     console.log('res', res)
-
+   if (!fs.existsSync('./uploads')) {
+    fs.mkdirSync('./uploads');
+  }
     // Create HTTP server
     server.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);

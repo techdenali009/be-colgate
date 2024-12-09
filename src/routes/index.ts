@@ -7,6 +7,9 @@ import WarehouseRoutes from './warehouseRoutes';
 import { auth } from '../middlewares/authMiddleware';
 import subCategoryRoutes  from './subCategoryRoutes'
 import orderRoutes from './orderRoutes';
+import { fileUpload } from '../services/fileUploadService';
+import { upload } from '../fileUpload/fileUpload';
+
 const router = Router();
 
 // Define user Routes
@@ -17,5 +20,6 @@ router.use('/warehouse',WarehouseRoutes);
 router.use('/subcategories', subCategoryRoutes);
 router.use('/order', orderRoutes);
 router.use('/', authRoutes);
+router.post('/fileUpload', upload.single('file'), fileUpload)
 
 export default router; 
