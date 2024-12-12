@@ -115,6 +115,7 @@ export const getAllOrdersService = async (query: any, params: any = {}) => {
 export const getOrdersByIdService = async (orderId: string) => {
     try {
         return await Orders.findById(orderId).select(selectedFields)
+           .populate('userId', 'name email firstName lastName address')
             .populate({
                 path: 'products.product',
                 select: 'name price description images',
