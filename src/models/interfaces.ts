@@ -164,5 +164,6 @@ export interface IOrder extends IBasicFields {
   taxAmount: number,
   shippingCost: number,
   comments: { userId: string, message: string, createdAt: Date }[],
-  orderId: string
+  orderId: string,
+  couponCode: string
 }

@@ -5,6 +5,7 @@ import { IOrder } from '../models/interfaces';
 import Orders from '../models/Orders';
 import Product from '../models/product';
 import { buildPaginationQuery } from '../utils/appFunctions';
+import { applyCoupon, incrementCouponUsage, validateCoupon } from './coupon.service';
 
 // Order Selectde Fields
 const selectedFields = `shippingAddress 
@@ -16,48 +17,49 @@ createdAt updatedAt discount orderId`;
 
 export const createOrderService = async (order: IOrder): Promise<IOrder> => {
     try {
-        const { products, totalAmount, taxAmount, shippingCost } = order;
-        let verifiedTotal = 0;
-        let allProducts = [];
-        for (const item of products) {
-            if (!mongoose.Types.ObjectId.isValid(`${item.product}`)) {
-                throw new Error('Invalid product');
-            }
-            const product = await Product.findById(item.product).exec();
-            if (!product) throw new Error('Invalid product');
-            verifiedTotal += product.price * item.quantity;
-            item.priceSnapshot = product.price;
-            allProducts.push(item)
+      const { products, totalAmount, taxAmount, shippingCost, couponCode } = order;
+      let verifiedTotal = 0;
+      let allProducts = [];
+  
+      // Calculate the total before applying the coupon
+      for (const item of products) {
+        if (!mongoose.Types.ObjectId.isValid(`${item.product}`)) {
+          throw new Error('Invalid product');
         }
-
-        if (taxAmount) {
-            verifiedTotal += taxAmount;
-        }
-
-        if (shippingCost) {
-            verifiedTotal += shippingCost;
-        }
-
-        console.log("verifiedTotal !== totalAmount", verifiedTotal, totalAmount);
-        if (verifiedTotal !== totalAmount) {
-            throw new Error(Messages.Order_Total_Mismatch);
-        }
-
-        order.products = allProducts;
-        const newOrder = new Orders(order);
-        newOrder.createdBy = order.userId as ObjectId;
-        newOrder.updatedBy = order.userId as ObjectId;
-        const savedOrder = await newOrder.save();
-        const totalOrders = await Orders.countDocuments();
-        const date = new Date();
-        const year = date.getFullYear();
-        savedOrder.orderId = `ORD${year}${totalOrders + 1}`;
-        const orderObj = await savedOrder.save();
-        return orderObj;
+        const product = await Product.findById(item.product).exec();
+        if (!product) throw new Error('Invalid product');
+        verifiedTotal += product.price * item.quantity;
+        item.priceSnapshot = product.price;
+        allProducts.push(item);
+      }
+  
+      if (taxAmount) {
+        verifiedTotal += taxAmount;
+      }
+  
+      if (shippingCost) {
+        verifiedTotal += shippingCost;
+      }
+  
+     
+  
+      order.products = allProducts;
+      const newOrder = new Orders(order);
+      newOrder.createdBy = order.userId as ObjectId;
+      newOrder.updatedBy = order.userId as ObjectId;
+      const savedOrder = await newOrder.save();
+      const totalOrders = await Orders.countDocuments();
+      const date = new Date();
+      const year = date.getFullYear();
+      savedOrder.orderId = `ORD${year}${totalOrders + 1}`;
+      const orderObj = await savedOrder.save();
+  
+      return orderObj;
     } catch (error) {
-        throw new Error((error as Error).message);
+      throw new Error((error as Error).message);
     }
-};
+  };
+  
 
 export const getAllOrdersService = async (query: any, params: any = {}) => {
     try {
