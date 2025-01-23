@@ -131,3 +131,8 @@ export const validOrderSequence = [
     OrderStatus.Delivered,  // Index 3
     OrderStatus.Cancelled   // Index 4
 ];
+
+export const couponError = {
+    usageLimitExceeded: "Coupon usage limit reached.", 
+    expired :"Coupon is not valid at this time." 
+}

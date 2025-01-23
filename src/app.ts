@@ -22,9 +22,9 @@ app.use(cookieParser());
 // Routes
 app.use('/api', routes);
 // app.use(express.json()); // Important for JSON parsing
-// app.use("/api/coupons", couponRoutes); // Correct usage of router
+//  app.use("/api/coupons", couponRoutes); // Correct usage of router
 // Mount the coupon routes
-app.use('/api/coupon', couponRoutes);
+//  app.use('/api/coupon', couponRoutes);
 
 
 // Error handling middleware

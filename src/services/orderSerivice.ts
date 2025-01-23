@@ -41,27 +41,7 @@ export const createOrderService = async (order: IOrder): Promise<IOrder> => {
         verifiedTotal += shippingCost;
       }
   
-      // Apply coupon discount if present
-    //   if (couponCode) {
-    //     const coupon = await validateCoupon(couponCode, verifiedTotal);
-    //     const { discountAmount, discountedTotal } = applyCoupon(coupon, verifiedTotal);
-  
-    //     verifiedTotal = discountedTotal; // Apply the discount to the total
-        
-    //     order.discount = {
-    //       couponCode: coupon.code,
-    //       amount: discountAmount,
-    //     };
-       
-  
-    //     await incrementCouponUsage(coupon.code); // Increment the coupon usage count
-    //   }
-  
-      // Final total check
-    //   if (verifiedTotal == totalAmount) {
-    //     console.log("totalAmountwwwwwwwwwwwwwwwwwwwwwwwwwwwww",verifiedTotal);
-    //     throw new Error('Order total mismatch');
-    //   }
+     
   
       order.products = allProducts;
       const newOrder = new Orders(order);

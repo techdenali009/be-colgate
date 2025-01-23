@@ -17,7 +17,7 @@ router.use('/products', productRoutes);
 router.use('/warehouse',WarehouseRoutes);
 router.use('/subcategories', subCategoryRoutes);
 router.use('/order', orderRoutes);
-router.use('/coupons', couponRoutes);
+router.use('/coupon', couponRoutes);
 router.use('/', authRoutes);
 
 export default router; 

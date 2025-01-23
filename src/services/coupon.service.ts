@@ -1,6 +1,7 @@
 // services/coupon.service.ts
 import Coupon from "../models/coupon.model";
 import { ICoupon } from "../models/coupon.model";
+import { couponError } from "../utils/constants";
 
 export const validateCoupon = async (code: string, totalAmount: number) => {
   console.log("Received Coupon Code:", code);  // Log the coupon code
@@ -17,15 +18,15 @@ export const validateCoupon = async (code: string, totalAmount: number) => {
   console.log("Coupon Valid From:", coupon.validFrom, "Valid Until:", coupon.validUntil);
 
   if (currentDate < coupon.validFrom || currentDate > coupon.validUntil) {
-    throw new Error("Coupon is not valid at this time.");
+    throw new Error(couponError.expired);
   }
 
   if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
-    throw new Error("Coupon usage limit reached.");
+    throw new Error(couponError.usageLimitExceeded);
   }
 
   if (coupon.minOrderAmount && totalAmount < coupon.minOrderAmount) {
-    throw new Error(`Minimum order amount of ₹${coupon.minOrderAmount} is required.`);
+    throw new Error(`Minimum order amount of ₹ ${coupon.minOrderAmount} is required.`);
   }
 
   return coupon;
