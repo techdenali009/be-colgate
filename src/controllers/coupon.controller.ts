@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { validateCoupon, applyCoupon, incrementCouponUsage, createCoupon as createCouponService } from "../services/coupon.service"; // Import the createCoupon service
+import { validateCoupon, applyCoupon, incrementCouponUsage, createCoupon as createCouponService, getAllCoupons, removeCoupon } from "../services/coupon.service"; // Import the createCoupon service
 import { successResponse, failResponse } from "../utils/response";
 import { StatusCode } from "../utils/StatusCodes";
 import { Messages } from "../utils/constants";
@@ -58,3 +58,44 @@ export const createCoupon = async (req: Request, res: Response): Promise<void> =
       failResponse(res, error?.message || "Failed to create coupon.", StatusCode.Bad_Request);
     }
   };
+  export const getCoupons = async (req: Request, res: Response): Promise<void> => {
+    try {
+      console.log("Fetching coupons...");
+  
+      const isActive = req.query.isActive ? req.query.isActive === 'true' : undefined;
+  
+      // Call the service function to get coupons based on active status
+      const coupons = await getAllCoupons(isActive);
+  
+      console.log("Coupons retrieved successfully:", coupons);
+  
+      // Send success response
+      successResponse(res, coupons, "Coupons fetched successfully.", StatusCode.OK);
+  
+    } catch (error: any) {
+      console.error("Error fetching coupons:", error?.message);
+      failResponse(res, error?.message || "Failed to fetch coupons.", StatusCode.Internal_Server_Error);
+    }
+  };
+  
+
+  export const deleteCoupon = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { identifier } = req.params;
+
+    console.log("Delete request for coupon identifier:", identifier);
+
+    // Call the service function to remove the coupon
+    const deletedCoupon = await removeCoupon(identifier);
+
+    console.log("Deleted Coupon:", deletedCoupon);
+
+    // Send success response
+    successResponse(res, deletedCoupon, "Coupon deleted successfully.", StatusCode.OK);
+
+  } catch (error: any) {
+    console.error("Error deleting coupon:", error?.message);
+    failResponse(res, error?.message || "Failed to delete coupon.", StatusCode.Bad_Request);
+  }
+};
+  

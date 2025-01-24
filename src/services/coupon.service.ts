@@ -66,3 +66,33 @@ export const createCoupon = async (couponData: ICoupon) => {
     throw new Error("Error creating coupon");
   }
 };
+export const getAllCoupons = async (isActive?: boolean) => {
+  try {
+    const filter = isActive !== undefined ? { isActive } : {};  // Filter based on isActive if provided
+    const coupons = await Coupon.find(filter);
+    console.log("Filtered coupons fetched successfully.", coupons);
+    return coupons;
+  } catch (error) {
+    console.error("Error fetching coupons:", error);
+    throw new Error("Error fetching coupons");
+  }
+};
+
+export const removeCoupon = async (couponIdentifier: string) => {
+  try {
+    // Remove coupon by code or ID
+    const deletedCoupon = await Coupon.findOneAndDelete({
+      $or: [{ _id: couponIdentifier }, { code: couponIdentifier }],
+    });
+
+    if (!deletedCoupon) {
+      throw new Error("Coupon not found.");
+    }
+
+    console.log("Coupon removed successfully:", deletedCoupon);
+    return deletedCoupon;
+  } catch (error) {
+    console.error("Error removing coupon:", error);
+    throw new Error("Error removing coupon.");
+  }
+};
